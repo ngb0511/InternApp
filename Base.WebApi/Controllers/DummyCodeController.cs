@@ -90,10 +90,10 @@ namespace Base.WebApi.Controllers
             return NoContent();
         }
 
-        [HttpPost("AddDummyCodeFromExcel")]
+        /*[HttpPost("AddDummyCodeFromExcel")]
         public IActionResult AddDummyCodeFromExcel(DummyCodeVM dummyCode)
         {
 
-        }
+        }*/
     }
 }
