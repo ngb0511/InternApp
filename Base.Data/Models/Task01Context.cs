@@ -35,11 +35,10 @@ public partial class Task01Context : DbContext
     {
         modelBuilder.Entity<DummyCode>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DummyCod__3214EC0756AD492A");
+            entity.HasKey(e => e.Id).HasName("PK__DummyCod__3214EC07B6B58996");
 
             entity.ToTable("DummyCode");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.DummyCodes)
@@ -50,11 +49,10 @@ public partial class Task01Context : DbContext
 
         modelBuilder.Entity<Forecast>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Forecast__3214EC078D39CBEE");
+            entity.HasKey(e => e.Id).HasName("PK__Forecast__3214EC07D72C8A08");
 
             entity.ToTable("Forecast");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.PostEnd).HasColumnType("date");
             entity.Property(e => e.PostStart).HasColumnType("date");
@@ -67,11 +65,10 @@ public partial class Task01Context : DbContext
 
         modelBuilder.Entity<Log>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Log__3214EC078063A152");
+            entity.HasKey(e => e.Id).HasName("PK__Log__3214EC077741F8BF");
 
             entity.ToTable("Log");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Logs)
@@ -82,20 +79,17 @@ public partial class Task01Context : DbContext
 
         modelBuilder.Entity<MaterialMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Material__3214EC070077FC86");
+            entity.HasKey(e => e.Id).HasName("PK__Material__3214EC074D9133A8");
 
             entity.ToTable("MaterialMaster");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<TimingPost>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TimingPo__3214EC07379EB468");
+            entity.HasKey(e => e.Id).HasName("PK__TimingPo__3214EC0732088E8F");
 
             entity.ToTable("TimingPost");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.PostEnd).HasColumnType("date");
             entity.Property(e => e.PostStart).HasColumnType("date");
@@ -108,11 +102,9 @@ public partial class Task01Context : DbContext
 
         modelBuilder.Entity<UserAssign>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserAssi__3214EC0777F1CB85");
+            entity.HasKey(e => e.Id).HasName("PK__UserAssi__3214EC079EE85250");
 
             entity.ToTable("UserAssign");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
         OnModelCreatingPartial(modelBuilder);
