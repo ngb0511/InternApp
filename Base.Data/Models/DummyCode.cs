@@ -20,4 +20,5 @@ public partial class DummyCode
     public int CreatedBy { get; set; }
 
     public virtual UserAssign CreatedByNavigation { get; set; } = null!;
+
 }
