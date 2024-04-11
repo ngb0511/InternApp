@@ -16,5 +16,7 @@ namespace Base.Domain.Interfaces
         public LogVM GetLogById(int id);
 
         public bool CheckLogById(int id);
+
+        public Task<byte[]> ExportExcel(IEnumerable<LogVM> logVMList);
     }
 }

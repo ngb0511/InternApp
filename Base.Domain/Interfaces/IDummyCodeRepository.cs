@@ -9,13 +9,13 @@ namespace Base.Domain.Interfaces
 {
     public interface IDummyCodeRepository : IGenericRepository<DummyCodeVM>
     {
-        public IEnumerable<DummyCodeVM> GetAllDummyCode();
+        public IEnumerable<DummyCodeVM> GetAll();
 
-        public void AddDummyCode(DummyCodeVM dummyCodeVM);
+        public void Add(DummyCodeVM dummyCodeVM);
 
-        public void AddRangeDummyCode(IEnumerable<DummyCodeVM> dummyCodeVMs);
+        public void AddRange(IEnumerable<DummyCodeVM> dummyCodeVMs);
 
-        public DummyCodeVM GetDummyCodeById(int id);
+        public DummyCodeVM GetById(int id);
 
         public bool CheckDummyCodeById(int id);
 

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Base.Data.Models;
 using Base.Data.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Base.Data.Infrastructure.UnitOfWork
 {
@@ -25,6 +26,7 @@ namespace Base.Data.Infrastructure.UnitOfWork
 
         public int Complete()
         {
+
             return _context.SaveChanges();
         }
         public void Dispose()

@@ -37,5 +37,25 @@ namespace Base.WebApi.Controllers
 
             return Ok();
         }
+
+        [HttpGet("ExportLogToExcel")]
+        public async Task<IActionResult> ExportLogToExcel()
+        {
+            var getAllLog = _unitOfWork.Logs.GetAllLog();
+
+            byte[] data = await _unitOfWork.Logs.ExportExcel(getAllLog);
+            /*string filePath = Path.Combine(Path.GetTempPath(), "Exported_Log.xlsx");
+
+            int i = 1;
+            while (System.IO.File.Exists(filePath))
+            {
+                filePath = Path.Combine(Path.GetTempPath(), "Exported_Log" + "(" + i + ")" +".xlsx");
+                i++;
+            }
+
+            System.IO.File.WriteAllBytes(filePath, data);*/
+
+            return File(data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Exported_Log.xlsx");
+        }
     }
 }

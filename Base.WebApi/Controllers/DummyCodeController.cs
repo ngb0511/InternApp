@@ -28,21 +28,21 @@ namespace Base.WebApi.Controllers
         [HttpGet("GetAllDummyCode")]
         public IActionResult GetAllDummyCode()
         {
-            var getAllDummyCode = _unitOfWork.DummyCodes.GetAllDummyCode();
+            var getAllDummyCode = _unitOfWork.DummyCodes.GetAll();
             return Ok(getAllDummyCode);
         }
 
         [HttpGet("GetDummyCodeById/{id}")]
         public IActionResult GetDummyCodeById(int id)   
         {
-            var getDummyCode = _unitOfWork.DummyCodes.GetDummyCodeById(id);
+            var getDummyCode = _unitOfWork.DummyCodes.GetById(id);
             return Ok(getDummyCode);
         }
 
         [HttpPost("AddDummyCode")]
         public IActionResult AddDummyCode(DummyCodeVM dummyCodeVM)
         {
-            _unitOfWork.DummyCodes.AddDummyCode(dummyCodeVM);
+            _unitOfWork.DummyCodes.Add(dummyCodeVM);
             _unitOfWork.Complete();
 
             return Ok();
@@ -146,7 +146,7 @@ namespace Base.WebApi.Controllers
             }
             else
             {
-                _unitOfWork.DummyCodes.AddRangeDummyCode(dummyCodeVMs);
+                _unitOfWork.DummyCodes.AddRange(dummyCodeVMs);
             }
 
             try
@@ -160,7 +160,7 @@ namespace Base.WebApi.Controllers
         [HttpGet("ExportDummyCodeToExcel")]
         public async Task<IActionResult> ExportDummyCodeToExcel()
         {
-            var getAllDummyCode = _unitOfWork.DummyCodes.GetAllDummyCode();
+            var getAllDummyCode = _unitOfWork.DummyCodes.GetAll();
 
             byte[] data = await _unitOfWork.DummyCodes.ExportExcel(getAllDummyCode);
             /*string filePath = Path.Combine(Path.GetTempPath(), "Exported_DummyCode.xlsx");

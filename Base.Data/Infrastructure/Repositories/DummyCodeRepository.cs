@@ -22,18 +22,24 @@ namespace Base.Data.Infrastructure.Repositories
 {
     public class DummyCodeRepository : GenericRepository<DummyCodeVM>, IDummyCodeRepository
     {
+        //private readonly Task01Context _context;
+        /*public DummyCodeRepository(Task01Context context) 
+        {
+            _context = context;
+        }*/
+
         public DummyCodeRepository(Task01Context context) : base(context)
         {
         }
 
-        public void AddDummyCode(DummyCodeVM dummyCodeVM)
+        public void Add(DummyCodeVM dummyCodeVM)
         {
             DummyCode dummyCode = GetDummyCodeValue(dummyCodeVM);
 
             _context.Set<DummyCode>().Add(dummyCode);   
         }
 
-        public void AddRangeDummyCode(IEnumerable<DummyCodeVM> dummyCodeVMs)
+        public void AddRange(IEnumerable<DummyCodeVM> dummyCodeVMs)
         {
             List<DummyCode> dummyCodes = new List<DummyCode>();
             foreach (DummyCodeVM item in dummyCodeVMs)
@@ -46,9 +52,10 @@ namespace Base.Data.Infrastructure.Repositories
             _context.Set<DummyCode>().AddRange(dummyCodes);
         }
 
-        public IEnumerable<DummyCodeVM> GetAllDummyCode()
+        public IEnumerable<DummyCodeVM> GetAll()
         {
             var listDummyCode = _context.Set<DummyCode>().ToList();
+
             List<DummyCodeVM> listDummyCodeVM = new List<DummyCodeVM>();
 
             foreach (DummyCode dummyCode in listDummyCode)
@@ -61,7 +68,7 @@ namespace Base.Data.Infrastructure.Repositories
             return listDummyCodeVM;
         }
 
-        public DummyCodeVM GetDummyCodeById(int id)
+        public DummyCodeVM GetById(int id)
         {
             DummyCodeVM dummyCode = GetDummyCodeVMValue(_context.Set<DummyCode>().Find(id));
 
@@ -256,7 +263,7 @@ namespace Base.Data.Infrastructure.Repositories
             dummyCode.Id = dummyCodeVM.Id;
             dummyCode.DpName = dummyCodeVM.DpName;
             dummyCode.Description = dummyCodeVM.Description;
-            dummyCode.CreatedDate = dummyCodeVM.CreatedDate;
+            dummyCode.CreatedDate = DateTime.Parse(dummyCodeVM.CreatedDate.ToString("yyyy-MM-dd"));
             dummyCode.Material = dummyCodeVM.Material;
             dummyCode.TotalMapping = dummyCodeVM.TotalMapping;
             dummyCode.CreatedBy = dummyCodeVM.CreatedBy;
