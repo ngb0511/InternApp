@@ -20,8 +20,8 @@ namespace Base.WebApi.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        [HttpGet("GetAll")]
-        public IActionResult GetAll()
+        [HttpGet("GetAllDummyCode")]
+        public IActionResult GetAllDummyCode()
         {
             var getAllDummyCode = _unitOfWork.DummyCodes.GetAllDummyCode();
             return Ok(getAllDummyCode);
@@ -35,18 +35,18 @@ namespace Base.WebApi.Controllers
         }
 
         [HttpPost("AddDummyCode")]
-        public IActionResult AddDummyCode(DummyCodeVM dummyCode)
+        public IActionResult AddDummyCode(DummyCodeVM dummyCodeVM)
         {
-            _unitOfWork.DummyCodes.AddDummyCode(dummyCode);
+            _unitOfWork.DummyCodes.AddDummyCode(dummyCodeVM);
             _unitOfWork.Complete();
 
             return Ok();
         }
 
         [HttpPut("UpdateDummyCode/{id}")]
-        public IActionResult UpdateDummyCode(int id, DummyCodeVM dummyCode)
+        public IActionResult UpdateDummyCode(int id, DummyCodeVM dummyCodeVM)
         {
-            if (id != dummyCode.Id)
+            if (id != dummyCodeVM.Id)
             {
                 return BadRequest();
             }
@@ -57,7 +57,7 @@ namespace Base.WebApi.Controllers
                 return NotFound();
             }
 
-            _unitOfWork.DummyCodes.UpdateDummyCode(dummyCode);
+            _unitOfWork.DummyCodes.UpdateDummyCode(dummyCodeVM);
 
             try
             {
@@ -70,8 +70,6 @@ namespace Base.WebApi.Controllers
 
             return NoContent();
         }
-
-        
 
         [HttpDelete("DeleteDummyCode/{id}")]
         public IActionResult DeleteDummyCode(int id)
@@ -90,10 +88,10 @@ namespace Base.WebApi.Controllers
             return NoContent();
         }
 
-        [HttpPost("AddDummyCodeFromExcel")]
+        /*[HttpPost("AddDummyCodeFromExcel")]
         public IActionResult AddDummyCodeFromExcel(DummyCodeVM dummyCode)
         {
 
-        }
+        }*/
     }
 }
