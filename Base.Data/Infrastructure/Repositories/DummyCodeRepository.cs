@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.StaticFiles;
 using Base.Data.Infrastructure.UnitOfWork;
 using System.Data;
 using ExcelDataReader;
+using System.Drawing;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace Base.Data.Infrastructure.Repositories
 {
@@ -154,6 +157,96 @@ namespace Base.Data.Infrastructure.Repositories
             }
 
             return dummyCodeVMs;
+        }
+
+        public async Task<byte[]> ExportExcel(IEnumerable<DummyCodeVM> dummyCodeVMList)
+        {
+            var dummyCodeVMs = dummyCodeVMList.ToList();
+            // Thiết lập LicenseContext
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            var package = new ExcelPackage();
+            var workSheet = package.Workbook.Worksheets.Add("DummyCode");
+            // fill header
+            List<string> listHeader = new List<string>()
+            {
+                "A1","B1","C1","D1","E1","F1"
+            };
+            listHeader.ForEach(c =>
+            {
+                workSheet.Cells[c].Style.Font.Bold = true;
+                workSheet.Cells[c].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[c].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[c].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                workSheet.Cells[c].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+            });
+            workSheet.Cells[listHeader[0]].Value = "Material";
+            workSheet.Cells[listHeader[1]].Value = "DpName";
+            workSheet.Cells[listHeader[2]].Value = "Description";
+            workSheet.Cells[listHeader[3]].Value = "TotalMapping";
+            workSheet.Cells[listHeader[4]].Value = "CreatedDate";
+            workSheet.Cells[listHeader[5]].Value = "CreatedBy";
+            //fill data
+            for (int i = 0; i < dummyCodeVMs.Count; i++)
+            {
+                workSheet.Cells[i + 2, 1].Value = dummyCodeVMs[i].Material;
+                workSheet.Cells[i + 2, 2].Value = dummyCodeVMs[i].DpName;
+                workSheet.Cells[i + 2, 3].Value = dummyCodeVMs[i].Description;
+                workSheet.Cells[i + 2, 4].Value = dummyCodeVMs[i].TotalMapping;
+                workSheet.Cells[i + 2, 5].Value = dummyCodeVMs[i].CreatedDate.ToString("dd-MM-yy");
+                workSheet.Cells[i + 2, 6].Value = dummyCodeVMs[i].CreatedBy;
+            }
+            // format column width
+            for (int i = 1; i < 7; i++)
+            {
+                workSheet.Column(i).Width = 10;
+            }
+            // format cell border
+            for (int i = 0; i < dummyCodeVMs.Count; i++)
+            {
+                for (int j = 1; j < 7; j++)
+                {
+                    workSheet.Cells[i + 2, j].Style.Font.Size = 10;
+                    workSheet.Cells[i + 2, j].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    workSheet.Cells[i + 2, j].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    workSheet.Cells[i + 2, j].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    workSheet.Cells[i + 2, j].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                }
+            }
+            return await package.GetAsByteArrayAsync();
+        }
+
+        private DataTable GetDummyCodeData()
+        {
+            var listDummyCode = _context.Set<DummyCode>().ToList();
+            List<DummyCodeVM> listDummyCodeVM = new List<DummyCodeVM>();
+
+            foreach (DummyCode dummyCode in listDummyCode)
+            {
+                DummyCodeVM dummyCodeVM = GetDummyCodeVMValue(dummyCode);
+
+                listDummyCodeVM.Add(dummyCodeVM);
+            }
+
+            DataTable dt = new DataTable();
+            dt.TableName = "DummyCode";
+            dt.Columns.Add("Material", typeof(int));
+            dt.Columns.Add("DpName", typeof(string));
+            dt.Columns.Add("Description", typeof(string));
+            dt.Columns.Add("TotalMapping", typeof(string));
+            dt.Columns.Add("CreatedDate", typeof(string));
+            dt.Columns.Add("CreatedBy", typeof(string));
+
+            //var _list = this._context.TblEmployees.ToList();
+            if (listDummyCodeVM.Count > 0)
+            {
+                listDummyCodeVM.ForEach(item =>
+                { 
+                    dt.Rows.Add(item.Material, item.DpName, item.Description, item.TotalMapping, item.CreatedDate, item.CreatedBy);
+                });
+            }
+
+            return dt;
         }
 
         DummyCode GetDummyCodeValue(DummyCodeVM dummyCodeVM)

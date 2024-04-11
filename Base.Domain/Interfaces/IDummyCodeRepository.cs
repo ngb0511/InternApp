@@ -26,6 +26,8 @@ namespace Base.Domain.Interfaces
         public void DeleteDummyCode(int id);
 
         public IEnumerable<DummyCodeVM> GetDummyCodeFromExcel(string fileName, int userId);
+
+        public Task<byte[]> ExportExcel(IEnumerable<DummyCodeVM> dummyCodeVMList);
     }
 
 }
