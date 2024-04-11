@@ -8,8 +8,7 @@ namespace Base.Domain.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
-        IDummyCodeRepository DummyCodes { get; }
-        ILogRepository Logs { get; }
+        IMaterialMaster MaterialMaster { get; }
         int Complete();
     }
 

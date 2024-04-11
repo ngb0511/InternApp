@@ -1,6 +1,9 @@
-﻿using Base.WebApp.Models;
+﻿using Base.Data.Models;
+using Base.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace Base.WebApp.Controllers
 {
@@ -8,20 +11,22 @@ namespace Base.WebApp.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+    public HomeController(ILogger<HomeController> logger)
+    {
+        _logger = logger;
+    }
 
-        public IActionResult Index()
+    public IActionResult Index()
         {
             return View();
         }
 
         public IActionResult Privacy()
         {
+
             return View();
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

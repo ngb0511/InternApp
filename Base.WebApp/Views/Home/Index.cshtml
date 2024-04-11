@@ -1,4 +1,4 @@
-﻿@{
+﻿@* @{
     ViewData["Title"] = "Home Page";
 }
 
@@ -10,4 +10,98 @@
 <script>
     ELEMENT.locale(ELEMENT.lang.en)
 </script>
-<script src="~/js/site.js"></script>
+<script src="~/js/site.js"></script> *@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Masters</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS styles can be added here */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Material Masters</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Material</th>
+                    <th>DP Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody id="materialTableBody">
+                <!-- Data from controller will be inserted here -->
+            </tbody>
+        </table>
+        <div id="pagination"></div>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const itemsPerPage = 80; // Số lượng mục trên mỗi trang
+        let currentPage = 1; // Trang hiện tại
+
+        // Function to display items for the current page
+        function displayItems(data) {
+            const materialTableBody = document.getElementById('materialTableBody');
+            let rows = ''; // Tạo biến chuỗi để tích lũy các hàng dữ liệu
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const itemsToShow = data.slice(startIndex, endIndex);
+            itemsToShow.forEach(material => {
+                // Tạo chuỗi HTML cho mỗi hàng dữ liệu
+                const row = `
+                            <tr>
+                                <td>${material.id}</td>
+                                <td>${material.material}</td>
+                                <td>${material.dpName}</td>
+                                <td>${material.description}</td>
+                            </tr>
+                        `;
+                rows += row; // Thêm chuỗi hàng dữ liệu vào biến tích lũy
+            });
+            // Thêm tất cả các hàng dữ liệu vào tbody một lần duy nhất
+            materialTableBody.innerHTML = rows;
+        }
+
+        // Function to generate pagination buttons
+        function generatePaginationButtons(totalPages) {
+            const paginationDiv = document.getElementById('pagination');
+            let buttons = '';
+            for (let i = 1; i <= totalPages; i++) {
+                buttons += `<button class="btn btn-sm btn-outline-primary mr-1" onclick="changePage(${i})">${i}</button>`;
+            }
+            paginationDiv.innerHTML = buttons;
+        }
+
+        // Function to change current page and display items accordingly
+        function changePage(pageNumber) {
+            currentPage = pageNumber;
+            fetchItems();
+        }
+
+        // Function to fetch data from the server
+        function fetchItems() {
+            fetch('https://localhost:7083/api/MaterialMaster/GetAll')
+                .then(response => response.json())
+                .then(data => {
+                    const totalPages = Math.ceil(data.length / itemsPerPage);
+                    displayItems(data);
+                    generatePaginationButtons(totalPages);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Initial call to fetch and display items
+        fetchItems();
+    </script>
+</body>
+</html>
