@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Text;
+using System.IO;
+using ExcelDataReader;
+using Microsoft.AspNetCore.StaticFiles;
+//using Cake.Core.IO;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -88,10 +92,78 @@ namespace Base.WebApi.Controllers
             return NoContent();
         }
 
-        /*[HttpPost("AddDummyCodeFromExcel")]
-        public IActionResult AddDummyCodeFromExcel(DummyCodeVM dummyCode)
+        private async Task<string> WriteFile(IFormFile file)
         {
+            string filename = "";
+            try
+            {
+                var extension = "." + file.FileName.Split('.')[file.FileName.Split('.').Length - 1];
+                filename = file.FileName.Split('.')[file.FileName.Split('.').Length - 2] + extension;
 
+                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "Files");
+
+                if (!Directory.Exists(filepath))
+                {
+                    Directory.CreateDirectory(filepath);
+                }
+
+                var exactpath = Path.Combine(Directory.GetCurrentDirectory(), "Files", filename);
+                using (var stream = new FileStream(exactpath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return filename;
+        }
+
+        [HttpPost("ImportDummyCodeFromExcel/{id}")]
+        public async Task<IActionResult> ImportDummyCodeFromExcel(int id, IFormFile file, CancellationToken cancellationtoken)
+        {
+            var result = await WriteFile(file);
+
+            List<DummyCodeVM> dummyCodeVMs = _unitOfWork.DummyCodes.GetDummyCodeFromExcel(result, id).ToList();
+            List<DummyCodeVM> dummyCodeVMError = new List<DummyCodeVM>();
+
+            foreach (var item in dummyCodeVMs)
+            {
+                if (_unitOfWork.DummyCodes.CheckDummyCodeExisted(item))
+                {
+                    dummyCodeVMError.Add(item);
+                }
+                if ((item.Material == null) || (item.DpName == string.Empty) || (item.Description == string.Empty))
+                {
+                    dummyCodeVMError.Add(item);
+                }
+            }
+
+            if (dummyCodeVMError.Count != 0)
+            {
+                return NotFound(dummyCodeVMError);
+            }
+            else
+            {
+                _unitOfWork.DummyCodes.AddRangeDummyCode(dummyCodeVMs);
+            }
+
+            try
+            {
+                _unitOfWork.Complete();
+            }
+            catch (Exception ex) { }
+            return Ok();
+        }
+
+        private string? GetError()
+        {
+            throw new NotImplementedException();
+        }
+
+        /*bool CheckExistedDummyCode(DummyCodeVM dummyCodeVM)
+        {
+            return false;
         }*/
     }
 }
