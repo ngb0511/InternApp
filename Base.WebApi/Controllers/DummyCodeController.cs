@@ -8,6 +8,7 @@ using System.Text;
 using System.IO;
 using ExcelDataReader;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Drawing;
 //using Cake.Core.IO;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -78,11 +79,11 @@ namespace Base.WebApi.Controllers
         [HttpDelete("DeleteDummyCode/{id}")]
         public IActionResult DeleteDummyCode(int id)
         {
-            var checkExist = _unitOfWork.DummyCodes.CheckDummyCodeById(id);
+            /*var checkExist = _unitOfWork.DummyCodes.CheckDummyCodeById(id);
             if (checkExist == null)
             {
                 return NotFound();
-            }
+            }*/
 
             //var dummyCode = _unitOfWork.DummyCodes.GetDummyCodeById(id);
 
@@ -154,6 +155,26 @@ namespace Base.WebApi.Controllers
             }
             catch (Exception ex) { }
             return Ok();
+        }
+
+        [HttpGet("ExportDummyCodeToExcel")]
+        public async Task<IActionResult> ExportDummyCodeToExcel()
+        {
+            var getAllDummyCode = _unitOfWork.DummyCodes.GetAllDummyCode();
+
+            byte[] data = await _unitOfWork.DummyCodes.ExportExcel(getAllDummyCode);
+            /*string filePath = Path.Combine(Path.GetTempPath(), "Exported_DummyCode.xlsx");
+
+            int i = 1;
+            while (System.IO.File.Exists(filePath))
+            {
+                filePath = Path.Combine(Path.GetTempPath(), "Exported_DummyCode" + "(" + i + ")" +".xlsx");
+                i++;
+            }
+
+            System.IO.File.WriteAllBytes(filePath, data);*/
+
+            return File(data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Exported_DummyCode.xlsx");
         }
 
         private string? GetError()
