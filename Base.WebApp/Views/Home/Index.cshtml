@@ -1,11 +1,43 @@
-﻿@{
+﻿@model Base.WebApp.Models.UserAssign
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@using (Html.BeginForm("CheckUser", "Home", FormMethod.Post))
+{
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+    <table width="200px">
+        <thead>
+            <tr>
+                <td>
+                    Username:
+                </td>
+                <th>
+                    @Html.TextBoxFor(model => model.UserName)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+                <tr>
+                    <td>
+                    Userfullname:
+                    </td>
+                    <td>
+                    @Html.TextBoxFor(model => model.UserFullName)
+                    </td>
+                </tr>
+        </tbody>
+    </table>
+    <input type="submit" value="Save" />
+}
+
 
 <script>
     ELEMENT.locale(ELEMENT.lang.en)
