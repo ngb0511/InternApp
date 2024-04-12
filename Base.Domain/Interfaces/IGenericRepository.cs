@@ -16,6 +16,6 @@ namespace Base.Domain.Interfaces
         void AddRange(IEnumerable<T> entities);
         void Remove(int id);
         void RemoveRange(IEnumerable<T> entities);
-        void Update(T entity, int id);
+        void Update(T entity);
     }
 }
