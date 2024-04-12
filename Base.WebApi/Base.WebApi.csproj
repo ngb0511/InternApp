@@ -7,10 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+
+  
+   
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.1.0" />
+
     <PackageReference Include="Cake.Core" Version="4.0.0" />
     <PackageReference Include="EPPlus" Version="7.1.1" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
+
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.17" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.17">

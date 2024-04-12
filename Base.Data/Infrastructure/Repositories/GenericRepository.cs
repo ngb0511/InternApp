@@ -18,7 +18,7 @@ namespace Base.Data.Infrastructure.Repositories
             _context = context;
         }
 
-        public void Add(T entity)
+        public virtual void Add(T entity)
         {
             _context.Set<T>().Add(entity);
         }
@@ -33,7 +33,7 @@ namespace Base.Data.Infrastructure.Repositories
             return _context.Set<T>().Where(expression);
         }
 
-        public IEnumerable<T> GetAll()
+        public virtual IEnumerable<T> GetAll()
         {
             return _context.Set<T>().ToList();
         }
@@ -43,9 +43,9 @@ namespace Base.Data.Infrastructure.Repositories
             return _context.Set<T>().Find(id);
         }
 
-        public void Remove(T entity)
+        public virtual void Remove(int id)
         {
-            _context.Set<T>().Remove(entity);
+            _context.Set<T>().Remove(_context.Set<T>().Find(id));
         }
 
         public void RemoveRange(IEnumerable<T> entities)
@@ -54,6 +54,7 @@ namespace Base.Data.Infrastructure.Repositories
         }
 
         public void Update(T entity)
+
         {
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;

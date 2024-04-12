@@ -14,18 +14,21 @@ namespace Base.Data.Infrastructure.UnitOfWork
         private readonly Task01Context _context;
         public IDummyCodeRepository DummyCodes { get; private set; }
         public ILogRepository Logs { get; private set; }
-
+        public ITimingPostRepository TimingPosts { get; private set; }
+        public IUserAssignRepository UserAssigns { get; private set; }
 
         public UnitOfWork(Task01Context context)
         {
             _context = context;
             DummyCodes = new DummyCodeRepository(_context);
             Logs = new LogRepository(_context);
+            TimingPosts = new TimingRepository(_context);
+            UserAssigns = new UserAssignRepository(_context);
         }
 
-        public int Complete()
+        public void Complete()
         {
-            return _context.SaveChanges();
+            _context.SaveChanges();
         }
         public void Dispose()
         {

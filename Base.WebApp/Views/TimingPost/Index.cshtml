@@ -1,0 +1,491 @@
+﻿@model IEnumerable<Base.Domain.ViewModels.TimingPostVM>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Timing Post</h1>
+
+<p>
+    <a onclick="CreateTiming()" class="btn btn-success" id="create">Create New</a>
+</p>
+@* <table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PostName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PostStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PostEnd)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Customer)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PostName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PostStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PostEnd)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedBy)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table> *@
+<table class="table" id="people-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Customer</th>
+            <th>PostName</th>
+            <th>PostStart</th>
+            <th>PostEnd</th>
+            <th>CreatedDate</th>
+            <th>CreatedBy</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Dữ liệu sẽ được cập nhật tại đây -->
+    </tbody>
+</table>
+<div id="data-container">
+    <!-- Dữ liệu sẽ được cập nhật ở đây -->
+</div>
+
+<div id="modalCreate" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px;padding-top: 12px; padding-left:15px">
+                        <div class="col-md-4"><span>Customer:</span></div>
+                        <div class="col-md-11">
+                            <input id="txtCustomer" type="text" class="form-control"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>PostName:</span></div>
+                        <div class="col-md-11">
+                            <input id="txtPostName" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>PostStart:</span></div>
+                        <div class="col-md-11">
+                            <input id="txtPostStart" type="date" class="form-control" > </input>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>PostEnd:</span></div>
+                        <div class="col-md-11">
+                            <input id="txtPostEnd" type="date" class="form-control"> </input>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button onclick="HideModal()" type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button id="btnCreate" class="btn btn-primary" type="submit">Thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalUpdate" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Update</h4>
+            </div>
+
+            <div class="modal-body">
+                <input id="up_txtId" type="text" class="form-control" hidden/>
+                    
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px;padding-top: 12px; padding-left:15px">
+                        <div class="col-md-4"><span>Customer:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtCustomer" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>PostName:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtPostName" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>PostStart:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtPostStart" type="date" class="form-control"> </input>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>PostEnd:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtPostEnd" type="date" class="form-control"> </input>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>CreatedDate:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtCreatedDate" type="datetime" class="form-control" disabled> </input>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>CreatedBy:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtCreatedBy" type="txt" class="form-control" disabled> </input>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button onclick="HideModal()" type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button id="btnUpdate" class="btn btn-primary" type="submit">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- HTML của biểu tượng loading -->
+<div id="loading-icon" style="display: none;">
+    <!-- Đây có thể là một hình ảnh GIF hoặc biểu tượng từ thư viện font -->
+    <i class="fa fa-spinner fa-spin"></i> Loading...
+</div>
+<script>
+    $(document).ready(function () {
+        $(document).ajaxStart(function () {
+            $('#loading-icon').show();
+        });
+
+        // Ẩn biểu tượng loading khi yêu cầu AJAX kết thúc
+        $(document).ajaxStop(function () {
+            $('#loading-icon').hide();
+        });
+        // Hàm gửi yêu cầu AJAX
+        // Gọi hàm loadData để tải dữ liệu khi trang được load
+        loadData();
+    });
+
+    function loadData() {
+        // Hiển thị biểu tượng loading khi gửi yêu cầu AJAX
+        $.ajax({
+            url: 'https://localhost:7083/api/TimingPost/GetAll', // Đường dẫn tới action GetData
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $('#people-table tbody').empty();
+                console.log(data);
+                // Đổ dữ liệu mới vào bảng
+                $.each(data, function (index, timing) {
+                    var stt = parseInt(index) + 1;
+                    var editLink = '<button onclick="GetData(' + timing.id + ')" class="btn btn-info">Sửa <i class="fas fa-tasks" ></i></button >';
+                    $('#people-table tbody')
+                        .append('<tr><td>' + stt + '</td><td>' + timing.customer + '</td><td>' + timing.postName
+                            + '</td><td>' + timing.postStart + '</td><td>' + timing.postEnd
+                            + '</td><td>' + timing.createdDate + '</td><td>' + timing.createdBy
+                            + '</td><td>' + editLink
+                            + '</td></tr>');
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    function CreateTiming() {
+        $("#modalCreate").modal("show");
+    }
+
+    function HideModal() {
+        $("#modalCreate").modal("hide");
+        $("#modalUpdate").modal("hide");
+    }
+
+    document.getElementById("txtPostStart").addEventListener("change", function () {
+        var startDate = new Date(document.getElementById("txtPostStart").value);
+        var endDate = new Date(document.getElementById("txtPostEnd").value);
+
+        if (startDate >= endDate) {
+            alert("Ngày bắt đầu phải trước ngày kết thúc!");
+            document.getElementById("txtPostStart").value = ""; // Xóa giá trị ngày bắt đầu
+        }
+    });
+
+    document.getElementById("txtPostEnd").addEventListener("change", function () {
+        var startDate = new Date(document.getElementById("txtPostStart").value);
+        var endDate = new Date(document.getElementById("txtPostEnd").value);
+
+        if (startDate >= endDate) {
+            alert("Ngày kết thúc phải sau ngày bất đầu!");
+            document.getElementById("txtPostEnd").value = ""; // Xóa giá trị ngày bắt đầu
+        }
+    });
+
+    $('#btnCreate').click(function () {
+        var formData = new FormData();
+        var customer = $("#txtCustomer").val();
+        var postName = $("#txtPostName").val();
+        var postStart = $("#txtPostStart").val();
+        var postEnd = $("#txtPostEnd").val();
+        if (customer.trim() != "" && postName.trim() != "" && postStart.trim() != "" && postEnd.trim() != "") {
+            formData.append("Customer", customer);
+            formData.append("PostName", postName);
+            formData.append("PostStart", postStart);
+            formData.append("PostEnd", postEnd);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Create", "TimingPost")',
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (data) {
+                    if (data.success == false) {
+                        Swal.fire({
+                            icon: "error",
+                            title: data.message,
+                            showClass: {
+                                popup: 'animate__animated animate__fadeInDown'
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__fadeOutUp'
+                            }
+                        }).then(function (result) {
+                            if (result.value) {
+                            }
+                        })
+                    } else {
+                        $("#txtCustomer").val("");
+                        $("#txtPostName").val("");
+                        $("#txtPostStart").val("");
+                        $("#txtPostEnd").val("");
+                        $("#modalCreate").modal("hide");
+                        loadData();
+                        Swal.fire({
+                            icon: "success",
+                            title: data.message,
+                            showClass: {
+                                popup: 'animate__animated animate__fadeInDown'
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__fadeOutUp'
+                            }
+                        }).then(function (result) {
+                            if (result.value) {
+                                
+                            }
+                        })
+                    }
+                }
+            })
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Vui lòng điền đầy đủ thông tin",
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                }
+            }).then(function (result) {
+                if (result.value) {
+                }
+            })
+        }
+    })
+
+    $('#btnUpdate').click(function () {
+        var formData = new FormData();
+        var customer = $("#up_txtCustomer").val();
+        var postName = $("#up_txtPostName").val();
+        var postStart = $("#up_txtPostStart").val();
+        var postEnd = $("#up_txtPostEnd").val();
+        var id = $("#up_txtId").val();
+       
+        
+        if (customer.trim() != "" && postName.trim() != "" && postStart.trim() != "" && postEnd.trim() != "") {
+            formData.append("Customer", customer);
+            formData.append("PostName", postName);
+            formData.append("PostStart", postStart);
+            formData.append("PostEnd", postEnd);
+            formData.append("Id", id);
+            console.log(formData.get('Id'));
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Edit", "TimingPost")',
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (data) {
+                    if (data.success == false) {
+                        Swal.fire({
+                            icon: "error",
+                            title: data.message,
+                            showClass: {
+                                popup: 'animate__animated animate__fadeInDown'
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__fadeOutUp'
+                            }
+                        }).then(function (result) {
+                            if (result.value) {
+                            }
+                        })
+                    } else {
+                        $("#up_txtCustomer").val("");
+                        $("#up_txtPostName").val("");
+                        $("#up_txtPostStart").val("");
+                        $("#up_txtPostEnd").val("");
+                        $("#modalUpdate").modal("hide");
+                        loadData();
+                        Swal.fire({
+                            icon: "success",
+                            title: data.message,
+                            showClass: {
+                                popup: 'animate__animated animate__fadeInDown'
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__fadeOutUp'
+                            }
+                        }).then(function (result) {
+                            if (result.value) {
+
+                            }
+                        })
+                    }
+                }
+            })
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Vui lòng điền đầy đủ thông tin",
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                }
+            }).then(function (result) {
+                if (result.value) {
+                }
+            })
+        }
+    })
+
+    //Lấy thông tin người dùng để cập nhật
+    function GetData(id) {
+        $.ajax({
+            url: '@Url.Action("GetById", "TimingPost")',
+            type: 'get',
+            data: {
+                id: id
+            },
+            success: function (data) {
+                    $('#up_txtCustomer').val(data.customer);
+                    $('#up_txtPostName').val(data.postName);
+                    $('#up_txtPostStart').val(FormatDate(data.postStart));
+                    $('#up_txtPostEnd').val(FormatDate(data.postEnd));
+                    $('#up_txtCreatedDate').val(FormatDateTime(data.createdDate));
+                    $('#up_txtCreatedBy').val(data.createdBy);
+                    $('#up_txtId').val(data.id);
+                    $('#modalUpdate').modal("show");                
+            }
+        })
+    }
+
+    function FormatDate(date){
+        var datetime = new Date(date); 
+        var year = datetime.getFullYear();
+        var month = ('0' + (datetime.getMonth() + 1)).slice(-2); // Thêm 0 phía trước nếu cần
+        var day = ('0' + datetime.getDate()).slice(-2); // Thêm 0 phía trước nếu cần
+        var formattedDate = year + '-' + month + '-' + day;
+
+        return formattedDate
+    }
+
+    function FormatDateTime(dateTime){
+        var date = new Date(dateTime);
+        var year = date.getFullYear();
+        var month = ('0' + (date.getMonth() + 1)).slice(-2); // Thêm 0 phía trước nếu cần
+        var day = ('0' + date.getDate()).slice(-2); // Thêm 0 phía trước nếu cần
+        var hours = ('0' + date.getHours()).slice(-2); // Thêm 0 phía trước nếu cần
+        var minutes = ('0' + date.getMinutes()).slice(-2); // Thêm 0 phía trước nếu cần
+        var seconds = ('0' + date.getSeconds()).slice(-2); // Thêm 0 phía trước nếu cần
+        var formattedDateTime = day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+        return formattedDateTime;
+    }
+
+</script>
