@@ -304,6 +304,7 @@
             formData.append("PostName", postName);
             formData.append("PostStart", postStart);
             formData.append("PostEnd", postEnd);
+
             $.ajax({
                 type: 'POST',
                 url: '@Url.Action("Create", "TimingPost")',
