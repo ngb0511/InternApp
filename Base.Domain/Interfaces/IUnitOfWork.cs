@@ -10,7 +10,9 @@ namespace Base.Domain.Interfaces
     {
         IDummyCodeRepository DummyCodes { get; }
         ILogRepository Logs { get; }
-        int Complete();
+        ITimingPostRepository TimingPosts { get; }
+        IUserAssignRepository UserAssigns { get; }
+        void Complete();
     }
 
 }
