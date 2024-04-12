@@ -53,11 +53,13 @@ namespace Base.Data.Infrastructure.Repositories
             _context.Set<T>().RemoveRange(entities);
         }
 
-        public virtual void Update(T entity, int Id)
+        public void Update(T entity)
+
         {
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
+
     }
 
 }
