@@ -22,7 +22,7 @@ namespace Base.Domain.Interfaces
 
         int UpdateByID(T entity);
         IEnumerable<T> ProcessFileAsync (IFormFile file);
-        public byte[] ExportToExcel<T>(IEnumerable<T> data, string fileName);
+        public byte[] ExportToExcel(IEnumerable<T> data, string fileName);
 
     }
 }

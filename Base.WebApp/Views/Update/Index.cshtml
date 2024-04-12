@@ -1,0 +1,220 @@
+﻿@using Base.Domain.ViewModels
+@model IEnumerable<MaterialMasterVM>
+
+@{
+    ViewData["Title"] = "Material Master";
+}
+
+<div class="container">
+    <h2>Material Master</h2>
+    <hr />
+
+    <!-- Upload File Form -->
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="file">Upload File:</label>
+            <input type="file" class="form-control-file" id="file" name="file">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="uploadFile()">Upload</button>
+    </form>
+    <hr />
+
+    <!-- Export to Excel Button -->
+    <!-- Export to Excel Button -->
+    <a href="https://localhost:7083/api/MaterialMaster/ExportFile" class="btn btn-success" download>Export to Excel</a>
+
+    <hr />
+
+    <!-- Material Master Table -->
+    <h3>Material Master List</h3>
+    <table id="materialTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>DpName</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically populated here -->
+        </tbody>
+    </table>
+
+    <!-- Add New Material Form -->
+    <hr />
+    <h3>Add New Material</h3>
+    <form id="addForm" method="post">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control" id="name" name="Name">
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <input type="text" class="form-control" id="description" name="Description">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="addMaterial()">Add Material</button>
+    </form>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Material</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label for="editName">Material:</label>
+                            <input type="text" class="form-control" id="editMaterial1" name="Material">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDescription">Description:</label>
+                            <input type="text" class="form-control" id="editDescription" name="Description">
+                        </div>
+                        <div class="form-group">
+                            <label for="editName">DpName:</label>
+                            <input type="text" class="form-control" id="editDpName" name="DpName">
+                        </div>
+                        <!-- You can add more fields here if needed -->
+                        <input type="hidden" id="editId" name="Id">
+                        <input type="hidden" id="editMaterial1" name="Material">
+                        <input type="hidden" id="editDescription" name="Description">
+                        <input type="hidden" id="editDpName" name="DpName">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMaterial()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Call the GetAll API when the page loads
+            $.ajax({
+                url: 'https://localhost:7083/api/MaterialMaster/GetAll',
+                type: 'GET',
+                success: function (data) {
+                    renderMaterialList(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching material data:', error);
+                }
+            });
+
+            function renderMaterialList(materialList) {
+                var materialTable = $('#materialTable tbody');
+                materialTable.empty(); // Clear the table body
+                materialList.forEach(function (material) {
+                    materialTable.append(`
+                                        <tr>
+                                            <td>${material.id}</td>
+                                            <td>${material.material}</td>
+                                            <td>${material.description}</td>
+                                            <td>${material.dpName}</td>
+                                            <td>
+                                                <button class="btn btn-info" onclick="viewMaterial(${material.id})">View</button>
+                                                <button class="btn btn-warning" onclick="editMaterial(${material.id})">Edit</button>
+                                                <button class="btn btn-danger" onclick="deleteMaterial(${material.id})">Delete</button>
+                                            </td>
+                                        </tr>
+                                    `);
+                });
+            }
+
+            function uploadFile() {
+                var formData = new FormData($('#uploadForm')[0]);
+                $.ajax({
+                    url: '/MaterialMaster/UploadFile',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        alert('File uploaded successfully.');
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error uploading file: ' + error);
+                    }
+                });
+            }
+
+
+            function viewMaterial(id) {
+                window.location.href = '/MaterialMaster/GetById/' + id;
+            }
+
+            // Add this function to show the edit modal with the material's data
+            function editMaterial(id) {
+                $.ajax({
+                    url: 'https://localhost:7083/api/MaterialMaster/GetById/' + id,
+                    type: 'GET',
+                    success: function (material) {
+                        $('#editId').val(material.id);
+                        $('#editName').val(material.material);
+                        $('#editDescription').val(material.description);
+                        $('#editModal').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching material data:', error);
+                    }
+                });
+            }
+
+            // Add this function to save the edited material
+            function saveMaterial() {
+                var formData = $('#editForm').serialize();
+                $.ajax({
+                    url: 'https://localhost:7083/api/MaterialMaster/UpdateMaterialMaster',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        alert('Material updated successfully.');
+                        $('#editModal').modal('hide');
+                        location.reload(); // Reload the page or update the material list as needed
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error updating material: ' + error);
+                    }
+                });
+            }
+
+
+            function deleteMaterial(id) {
+                if (confirm('Are you sure you want to delete this material?')) {
+                    $.ajax({
+                        url: '/MaterialMaster/DeleteMaterialMaster/' + id,
+                        type: 'DELETE',
+                        success: function (response) {
+                            alert('Material deleted successfully.');
+                            location.reload();
+                        },
+                        error: function (xhr, status, error) {
+                            alert('Error deleting material: ' + error);
+                        }
+                    });
+                }
+            }
+
+            function addMaterial() {
+                var formData = $('#addForm').serialize();
+                $.post('/MaterialMaster/Add', formData, function (response) {
+                    alert('Material added successfully.');
+                    location.reload();
+                }).fail(function (xhr, status, error) {
+                    alert('Error adding material: ' + error);
+                });
+            }
+        });
+    </script>
+}

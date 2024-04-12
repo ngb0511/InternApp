@@ -256,16 +256,14 @@ namespace Base.Data.Infrastructure.Repositories
 
             return notFoundIds;
         }
-
-        public byte[] ExportToExcel<T>(IEnumerable<T> data, string fileName)
+        public byte[] ExportToExcel(IEnumerable<MaterialMasterVM> data, string fileName)
         {
-
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             try
             {
                 using (ExcelPackage excelPackage = new ExcelPackage())
                 {
-                    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add(typeof(T).Name);
+                    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add(typeof(MaterialMasterEM).Name);
                     worksheet.Cells.LoadFromCollection(data, true);
 
                     using (MemoryStream memoryStream = new MemoryStream())
@@ -282,8 +280,6 @@ namespace Base.Data.Infrastructure.Repositories
                 throw; // Re-throw the exception to propagate it further if necessary
             }
         }
-
-
     }
 }
 

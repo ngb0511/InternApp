@@ -1,18 +1,4 @@
-﻿@* @{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
-
-<script>
-    ELEMENT.locale(ELEMENT.lang.en)
-</script>
-<script src="~/js/site.js"></script> *@
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -22,10 +8,18 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Custom CSS styles can be added here */
+        .container, .container-lg, .container-md, .container-sm {
+            margin-bottom: 60px ; /* Sử dụng !important để ghi đè các giá trị CSS có thể đã được áp dụng từ các quy tắc CSS khác */
+        }
+
+        .pagination-button {
+            width: 40px; /* Điều chỉnh chiều rộng của các nút chuyển trang */
+        }
+
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="margin-bottom:60px">
         <h1>Material Masters</h1>
         <table class="table">
             <thead>
@@ -59,13 +53,13 @@
             itemsToShow.forEach(material => {
                 // Tạo chuỗi HTML cho mỗi hàng dữ liệu
                 const row = `
-                            <tr>
-                                <td>${material.id}</td>
-                                <td>${material.material}</td>
-                                <td>${material.dpName}</td>
-                                <td>${material.description}</td>
-                            </tr>
-                        `;
+                                    <tr>
+                                        <td>${material.id}</td>
+                                        <td>${material.material}</td>
+                                        <td>${material.dpName}</td>
+                                        <td>${material.description}</td>
+                                    </tr>
+                                `;
                 rows += row; // Thêm chuỗi hàng dữ liệu vào biến tích lũy
             });
             // Thêm tất cả các hàng dữ liệu vào tbody một lần duy nhất
@@ -73,14 +67,16 @@
         }
 
         // Function to generate pagination buttons
+        // Function to generate pagination buttons
         function generatePaginationButtons(totalPages) {
             const paginationDiv = document.getElementById('pagination');
             let buttons = '';
             for (let i = 1; i <= totalPages; i++) {
-                buttons += `<button class="btn btn-sm btn-outline-primary mr-1" onclick="changePage(${i})">${i}</button>`;
+                buttons += `<button class="btn btn-sm btn-outline-primary mr-1 pagination-button" onclick="changePage(${i})">${i}</button>`;
             }
             paginationDiv.innerHTML = buttons;
         }
+
 
         // Function to change current page and display items accordingly
         function changePage(pageNumber) {
