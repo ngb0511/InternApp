@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+
 namespace Base.Data.Models;
 
 public partial class DummyCode
@@ -20,5 +21,4 @@ public partial class DummyCode
     public int CreatedBy { get; set; }
 
     public virtual UserAssign CreatedByNavigation { get; set; } = null!;
-
 }

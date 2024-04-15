@@ -10,6 +10,6 @@ namespace Base.Domain.Interfaces
 {
     public interface IMaterialMaster : IGenericRepository<MaterialMasterVM>
     {
-
+        public (IEnumerable<MaterialMasterVM>, int) GetAllPaginated(int pageNumber, int pageSize);
     }
 }

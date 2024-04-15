@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http;
+using Base.Data.Models;
+using Microsoft.EntityFrameworkCore;
 namespace Base.WebApi.Controllers
 {
     [Route("api/[controller]")]
@@ -15,12 +17,12 @@ namespace Base.WebApi.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-         [HttpGet("GetAll")]
-        public IActionResult GetAll()
-        {
-            var materialMasters = _unitOfWork.MaterialMaster.GetAll();
-            return Ok(materialMasters);
-        }
+        // [HttpGet("GetAll")]
+        //public IActionResult GetAll()
+        //{
+        //    var materialMasters = _unitOfWork.MaterialMaster.GetAll();
+        //    return Ok(materialMasters);
+        //}
         [HttpGet("GetById/{id}")]
         public IActionResult GetById(int id)
         {
@@ -33,15 +35,15 @@ namespace Base.WebApi.Controllers
             return Ok(materialMasterVM);
         }
         [HttpPost("Add")]
-        public IActionResult Add(MaterialMasterVM materialMasterVM)
+        public IActionResult Add( MaterialMasterVM materialMasterVM)
         {
             _unitOfWork.MaterialMaster.Add(materialMasterVM);
             _unitOfWork.Complete();
 
-            return Ok();
+            return Ok(new { message = "Material added successfully" });
         }
 
-        
+
         [HttpDelete("DeleteMaterialMaster/{id}")]
         public IActionResult Delete(int id)
         {
@@ -63,8 +65,7 @@ namespace Base.WebApi.Controllers
             if (result > -1)
             {
                 _unitOfWork.Complete();
-                return NoContent();
-
+                return Ok(materialMasterVM);  // Trả về object đã cập nhật
             }
             return NotFound($"Material master with ID {materialMasterVM.Id} was not found.");
         }
@@ -100,6 +101,37 @@ namespace Base.WebApi.Controllers
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "MaterialMaster.xlsx");
         }
 
+        [HttpGet("GetAll")]
+        public IActionResult GetAll(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var (materials, totalRecords) = _unitOfWork.MaterialMaster.GetAllPaginated(pageNumber, pageSize);
+
+                var materialsVM = materials.Select(materialMaster => new MaterialMasterVM
+                {
+                    Id = materialMaster.Id,
+                    Material = materialMaster.Material,
+                    Description = materialMaster.Description,
+                    DpName = materialMaster.DpName
+                }).ToList();
+
+                var response = new
+                {
+                    TotalRecords = totalRecords,
+                    Materials = materialsVM,
+                    CurrentPage = pageNumber,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize)
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
 
     }
 }

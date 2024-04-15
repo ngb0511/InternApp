@@ -68,34 +68,49 @@ namespace Base.Data.Infrastructure.Repositories
 
         public IEnumerable<MaterialMasterVM> GetAll()
         {
-            var listMaterialMaster = _context.Set<MaterialMaster>().ToList();
-            List<MaterialMasterVM> listMaterialMasterVM = listMaterialMaster.Select(materialMaster => new MaterialMasterVM
+            try
             {
-                 Id = materialMaster.Id,
-                 Material = materialMaster.Material,
-                 Description= materialMaster.Description,
-                 DpName= materialMaster.DpName,
-            }).ToList();
-
-            return listMaterialMasterVM;
+                var listMaterialMaster = _context.Set<MaterialMaster>().ToList();
+                return listMaterialMaster.Select(materialMaster => new MaterialMasterVM
+                {
+                    Id = materialMaster.Id,
+                    Material = materialMaster.Material,
+                    Description = materialMaster.Description,
+                    DpName = materialMaster.DpName,
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                Console.WriteLine($"An error occurred in GetAll: {ex.Message}");
+                throw;
+            }
         }
 
         public MaterialMasterVM? GetById(int id)
         {
-            MaterialMaster ? materialMaster = _context.Set<MaterialMaster>().Find(id);
-            if (materialMaster == null)
+            try
             {
-                return null; // Hoặc trả về một đối tượng rỗng, tùy thuộc vào thiết kế của bạn
-            }
+                var materialMaster = _context.Set<MaterialMaster>().Find(id);
+                if (materialMaster == null)
+                {
+                    return null;
+                }
 
-            MaterialMasterVM materialMasterVM = new MaterialMasterVM()
+                return new MaterialMasterVM
+                {
+                    Id = materialMaster.Id,
+                    Material = materialMaster.Material,
+                    Description = materialMaster.Description,
+                    DpName = materialMaster.DpName,
+                };
+            }
+            catch (Exception ex)
             {
-                Id = materialMaster.Id,
-                Material = materialMaster.Material,
-                Description = materialMaster.Description,
-                DpName = materialMaster.DpName,
-            };
-            return materialMasterVM;
+                // Log the exception or handle it as needed
+                Console.WriteLine($"An error occurred in GetById: {ex.Message}");
+                throw;
+            }
         }
 
 
@@ -151,23 +166,24 @@ namespace Base.Data.Infrastructure.Repositories
 
         public int UpdateByID(MaterialMasterVM entity)
         {
-            // Find the corresponding MaterialMaster entity in the database
-            MaterialMaster ?materialMaster = _context.Set<MaterialMaster>().Find(entity.Id);
-
-            if (materialMaster != null)
+            try
             {
-                // Update properties of the MaterialMaster entity with values from the MaterialMasterVM entity
-                materialMaster.Material = entity.Material;
-                materialMaster.Description = entity?.Description ?? string.Empty;
-                materialMaster.DpName = entity?.DpName ?? string.Empty;
+                var materialMaster = _context.Set<MaterialMaster>().Find(entity.Id);
+                if (materialMaster != null)
+                {
+                    materialMaster.Material = entity.Material;
+                    materialMaster.Description = entity?.Description ?? string.Empty;
+                    materialMaster.DpName = entity?.DpName ?? string.Empty;
 
-                _context.SaveChanges(); // Save changes to persist the updates
-
-                return 1; // Return 1 to indicate that one entity was updated
+                    _context.SaveChanges();
+                    return 1;
+                }
+                return -1;
             }
-            else
+            catch (Exception ex)
             {
-                return -1; // Return 0 to indicate that no entity was updated (entity with the provided ID not found)
+                Console.WriteLine($"An error occurred in UpdateByID: {ex.Message}");
+                throw;
             }
         }
 
@@ -280,6 +296,33 @@ namespace Base.Data.Infrastructure.Repositories
                 throw; // Re-throw the exception to propagate it further if necessary
             }
         }
+        public (IEnumerable<MaterialMasterVM>, int) GetAllPaginated(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var query = _context.Set<MaterialMaster>().AsQueryable();
+                int totalRecords = query.Count();
+                var paginatedData = query.Skip((pageNumber - 1) * pageSize).Take(pageSize).Select(materialMaster => new MaterialMasterVM
+                {
+                    Id = materialMaster.Id,
+                    Material = materialMaster.Material,
+                    Description = materialMaster.Description,
+                    DpName = materialMaster.DpName
+                }).ToList();
+
+                return (paginatedData, totalRecords);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                Console.WriteLine($"An error occurred in GetAllPaginated: {ex.Message}");
+                throw;
+            }
+        }
+
+
+
+
     }
 }
 

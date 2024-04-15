@@ -13,6 +13,18 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("https://localhost:7128") // Specify the exact origins
+                          .AllowAnyMethod() // Allows all methods
+                          .AllowAnyHeader() // Allows all headers
+                          .AllowCredentials()); // Allows credentials such as cookies, authorization headers, etc.
+});
+
+builder.Services.AddControllers();
+
+
 var app = builder.Build();
 app.UseCors("AllowSpecificOrigin");
 // Configure the HTTP request pipeline.
@@ -33,5 +45,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Update}/{action=Index}/{id?}");
+
 
 app.Run();
