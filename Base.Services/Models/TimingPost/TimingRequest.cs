@@ -4,16 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Domain.ViewModels
+namespace Base.Service.Models.TimingPost
 {
-    public class TimingPostVM
-    {  
+    public class TimingRequest
+    {
         public int Id { get; set; }
-        public string Customer {  get; set; }
-        public string PostName { get; set; }
+        public string Customer { get; set; } = null!;
+
+        public string PostName { get; set; } = null!;
+
         public DateTime PostStart { get; set; }
+
         public DateTime PostEnd { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public int CreatedBy { get; set; }
+
     }
 }

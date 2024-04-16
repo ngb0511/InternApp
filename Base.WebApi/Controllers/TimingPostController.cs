@@ -2,6 +2,9 @@
 using Base.Data.Models;
 using Base.Domain.Interfaces;
 using Base.Domain.ViewModels;
+using Base.Service.Contracts;
+using Base.Service.Models.TimingPost;
+using Base.Service.Services;
 using Base.WebApi.Models;
 using ExcelDataReader;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -18,11 +21,11 @@ namespace Base.WebApi.Controllers
     [ApiController]
     public class TimingPostController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITimingPostService _timingPostService;
 
-        public TimingPostController(IUnitOfWork unitOfWork)
+        public TimingPostController(ITimingPostService timingPostService)
         {
-            _unitOfWork = unitOfWork;
+            _timingPostService = timingPostService;
         }
 
         [HttpGet("GetAll")]
@@ -30,7 +33,7 @@ namespace Base.WebApi.Controllers
         {
             try
             {                
-                return Ok(_unitOfWork.TimingPosts.GetAll());
+                return Ok(_timingPostService.GetAll());
             }
             catch
             {
@@ -40,11 +43,11 @@ namespace Base.WebApi.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public IActionResult GetAll(int id)
+        public IActionResult GetById(int id)
         {
             try
-            {                
-                return Ok(_unitOfWork.TimingPosts.GetById(id));
+            {
+                return Ok(_timingPostService.GetById(id));
             }
             catch
             {
@@ -53,12 +56,11 @@ namespace Base.WebApi.Controllers
         }
 
         [HttpPost("Create")]
-        public IActionResult Add(TimingPostVM timingPost)
+        public IActionResult Add(TimingRequest timingPost)
         {
             try
             {
-                _unitOfWork.TimingPosts.Add(timingPost);
-                _unitOfWork.Complete();
+                _timingPostService.Add(timingPost);
                 return Ok(new { Message = "Thêm thành công", Success = true});
             }
             catch
@@ -69,16 +71,15 @@ namespace Base.WebApi.Controllers
         }
 
         [HttpPut("Update")]
-        public IActionResult Update(TimingPostVM timingPost)
+        public async Task<IActionResult> Update(TimingRequest timingPost)
         {
             try
             {
-                if (!_unitOfWork.TimingPosts.IsExistedById(timingPost.Id))
+                bool result = _timingPostService.Update(timingPost).Result;
+                if (!result)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
-                _unitOfWork.TimingPosts.Update(timingPost);
-                _unitOfWork.Complete();
                 return Ok(new { Message = "Cập nhật thành công", Success = true });
             }
             catch
@@ -86,87 +87,70 @@ namespace Base.WebApi.Controllers
                 return BadRequest();
             }            
         }
-
+    
         [HttpDelete]
         public IActionResult Delete(int id)
         {
             try
             {
-                _unitOfWork.TimingPosts.Remove(id);
-                _unitOfWork.Complete();
-                return Ok();
+                bool result = _timingPostService.Remove(id).Result;
+                if (!result)
+                {
+                    return BadRequest();
+                }
+                return Ok(new { Message = "Xóa thành công", Success = true});
             }
             catch
             {
                 return BadRequest();
             }
         }
-
+        
         [HttpPost("ImportTimingPostFromExcel")]
         public async Task<IActionResult> ImportExcel(IFormFile file, CancellationToken cancellationToken)
         {
-            var result = await WriteFile(file);
-
-            List<TimingPostVM> timingPostVMs = _unitOfWork.TimingPosts.GetTimingPostFromExcel(result).ToList();
-            List<TimingPostVM> timingPostVMError = new List<TimingPostVM>();
-
-            foreach (var item in timingPostVMs)
+            string filePath = string.Empty;
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Import/TimingPost/");
+            filePath = path + Path.GetFileName(file.FileName);
+            if (!Directory.Exists(path))
             {
-                if (_unitOfWork.TimingPosts.IsExisted(item))
-                {
-                    timingPostVMError.Add(item);
-                }
-                if ((item.Customer == null) || (item.PostName == string.Empty) || (item.PostStart == null) || (item.PostEnd == null))
-                {
-                    timingPostVMError.Add(item);
-                }
+                Directory.CreateDirectory(path);
             }
-
-            _unitOfWork.TimingPosts.AddRangeTimingPost(timingPostVMs);
-            try
+            string extension = Path.GetExtension(file.FileName);
+            if(extension != ".xlsx")
             {
-                _unitOfWork.Complete();
+                return Ok(new { message = "Vui lòng chọn file định dạng Excel", success = false });
             }
-            catch (Exception ex) { }
-
-
-            return Ok("");
-        }
-
-        private async Task<string> WriteFile(IFormFile file)
-        {                  
-                string filePath = string.Empty;
-
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "Import/TimingPost/");
-                filePath = path + Path.GetFileName(file.FileName);
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }            
-                string extension = Path.GetExtension(file.FileName);
-                // Sử dụng luồng để ghi nội dung của tệp tin vào đường dẫn
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-    
-                return filePath;            
+            // Sử dụng luồng để ghi nội dung của tệp tin vào đường dẫn
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            if(await _timingPostService.ImportTimingPostAsync(filePath))
+            {
+                return Ok(new { message = "Import dữ liệu thành công", success = true});
+            }
+            return Ok(new { message = "Không có gì thay đổi", success = true});
         }
 
         [HttpGet("ExportExcelFile")]
         public async Task<IActionResult> ExportExcelFile()
         {
-            var listTiming = _unitOfWork.TimingPosts.GetAll().ToList();
-            byte[] data = await _unitOfWork.TimingPosts.ExportExcel(listTiming);            
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "Exports/");
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            string filePath = path+ "TimingPost.xlsx";
-            System.IO.File.WriteAllBytes(filePath, data);
+            byte[] data = await _timingPostService.ExportExcel();
             return File(data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "TimingPost"); ;
         }
 
+        [HttpGet("Paging")]
+        public IActionResult PagingTimingPost(int pageIndex, int pageSize)
+        {
+            try
+            {
+                return Ok(_timingPostService.PagingTimingPost(pageIndex, pageSize));
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
     }
 }

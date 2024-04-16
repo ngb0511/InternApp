@@ -8,9 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Base.Domain;
 
-namespace Base.Data.Infrastructure.Repositories
+namespace Base.Data.Repositories
 {
-    public class DummyCodeRepository : GenericRepository<DummyCodeVM>, IDummyCodeRepository
+    public class DummyCodeRepository : GenericRepository<DummyCode>, IDummyCodeRepository
     {
         public DummyCodeRepository(Task01Context context) : base(context)
         {

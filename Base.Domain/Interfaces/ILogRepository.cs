@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Base.Domain.Interfaces
 {
-    public interface ILogRepository : IGenericRepository<LogVM>
+    public interface ILogRepository 
     {
         //IEnumerable<LogVM> GetPopularDevelopers(int count);
     }

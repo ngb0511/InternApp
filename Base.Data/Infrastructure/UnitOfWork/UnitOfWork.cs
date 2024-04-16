@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Base.Data.Models;
-using Base.Data.Infrastructure.Repositories;
+using Base.Data.Repositories;
 
 namespace Base.Data.Infrastructure.UnitOfWork
 {
@@ -14,16 +14,12 @@ namespace Base.Data.Infrastructure.UnitOfWork
         private readonly Task01Context _context;
         public IDummyCodeRepository DummyCodes { get; private set; }
         public ILogRepository Logs { get; private set; }
-        public ITimingPostRepository TimingPosts { get; private set; }
-        public IUserAssignRepository UserAssigns { get; private set; }
 
         public UnitOfWork(Task01Context context)
         {
             _context = context;
             DummyCodes = new DummyCodeRepository(_context);
             Logs = new LogRepository(_context);
-            TimingPosts = new TimingRepository(_context);
-            UserAssigns = new UserAssignRepository(_context);
         }
 
         public void Complete()

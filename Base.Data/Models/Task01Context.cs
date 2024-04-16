@@ -29,13 +29,13 @@ public partial class Task01Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=118.69.224.60, 1435;Database=task01;User ID=sa;Password=Librasoft@123;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=MSI;Database=task01;Integrated Security=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<DummyCode>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DummyCod__3214EC07B6B58996");
+            entity.HasKey(e => e.Id).HasName("PK__DummyCod__3214EC07F74955B8");
 
             entity.ToTable("DummyCode");
 
@@ -44,12 +44,12 @@ public partial class Task01Context : DbContext
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.DummyCodes)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__DummyCode__Creat__66603565");
+                .HasConstraintName("FK__DummyCode__Creat__412EB0B6");
         });
 
         modelBuilder.Entity<Forecast>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Forecast__3214EC07D72C8A08");
+            entity.HasKey(e => e.Id).HasName("PK__Forecast__3214EC07F1317DD1");
 
             entity.ToTable("Forecast");
 
@@ -60,12 +60,12 @@ public partial class Task01Context : DbContext
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Forecasts)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Forecast__Create__5EBF139D");
+                .HasConstraintName("FK__Forecast__Create__398D8EEE");
         });
 
         modelBuilder.Entity<Log>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Log__3214EC077741F8BF");
+            entity.HasKey(e => e.Id).HasName("PK__Log__3214EC078D5F57ED");
 
             entity.ToTable("Log");
 
@@ -74,19 +74,19 @@ public partial class Task01Context : DbContext
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Logs)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Log__CreatedBy__693CA210");
+                .HasConstraintName("FK__Log__CreatedBy__440B1D61");
         });
 
         modelBuilder.Entity<MaterialMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Material__3214EC074D9133A8");
+            entity.HasKey(e => e.Id).HasName("PK__Material__3214EC07E7545363");
 
             entity.ToTable("MaterialMaster");
         });
 
         modelBuilder.Entity<TimingPost>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TimingPo__3214EC0732088E8F");
+            entity.HasKey(e => e.Id).HasName("PK__TimingPo__3214EC0750D9494A");
 
             entity.ToTable("TimingPost");
 
@@ -97,12 +97,12 @@ public partial class Task01Context : DbContext
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TimingPosts)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__TimingPos__Creat__619B8048");
+                .HasConstraintName("FK__TimingPos__Creat__3C69FB99");
         });
 
         modelBuilder.Entity<UserAssign>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserAssi__3214EC079EE85250");
+            entity.HasKey(e => e.Id).HasName("PK__UserAssi__3214EC07015F551F");
 
             entity.ToTable("UserAssign");
         });

@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Data.Infrastructure.Repositories
+namespace Base.Data.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
@@ -33,7 +33,7 @@ namespace Base.Data.Infrastructure.Repositories
             return _context.Set<T>().Where(expression);
         }
 
-        public virtual IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll()
         {
             return _context.Set<T>().ToList();
         }
@@ -43,7 +43,7 @@ namespace Base.Data.Infrastructure.Repositories
             return _context.Set<T>().Find(id);
         }
 
-        public virtual void Remove(int id)
+        public void Remove(int id)
         {
             _context.Set<T>().Remove(_context.Set<T>().Find(id));
         }
@@ -53,11 +53,12 @@ namespace Base.Data.Infrastructure.Repositories
             _context.Set<T>().RemoveRange(entities);
         }
 
-        public virtual void Update(T entity, int Id)
+        public void Update(T entity)
         {
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
+
     }
 
 }

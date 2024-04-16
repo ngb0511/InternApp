@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Data.Infrastructure.Repositories
+namespace Base.Data.Repositories
 {
     public class LogRepository : GenericRepository<LogVM>, ILogRepository
     {

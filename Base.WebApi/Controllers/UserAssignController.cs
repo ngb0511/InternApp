@@ -1,5 +1,7 @@
 ﻿using Base.Data.Infrastructure.UnitOfWork;
 using Base.Domain.Interfaces;
+using Base.Service.Contracts;
+using Base.Service.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,19 +9,19 @@ namespace Base.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserAssign : ControllerBase
+    public class UserAssignController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserAssignService _userAssignService;
 
-        public UserAssign(IUnitOfWork unitOfWork)
+        public UserAssignController(IUserAssignService userAssignService)
         {
-            _unitOfWork = unitOfWork;
+            _userAssignService = userAssignService;
         }
 
         [HttpGet]
         public IActionResult CheckUserAssign(string userName)
         {
-            if (_unitOfWork.UserAssigns.IsExistedUserName(userName))
+            if (_userAssignService.IsExistedUserName(userName).Result)
             {
                 return Ok();
             }

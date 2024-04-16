@@ -15,9 +15,9 @@ public partial class TimingPost
 
     public DateTime PostEnd { get; set; }
 
-    public DateTime CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-    public int CreatedBy { get; set; }
+    public int CreatedBy { get; set; } = 1;
 
     public virtual UserAssign CreatedByNavigation { get; set; } = null!;
 }

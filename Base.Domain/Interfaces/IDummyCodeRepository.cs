@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Base.Domain.Interfaces
 {
-    public interface IDummyCodeRepository : IGenericRepository<DummyCodeVM>
+    public interface IDummyCodeRepository 
     {
         //IEnumerable<DummyCodeVM> GetPopularDevelopers(int count);
     }

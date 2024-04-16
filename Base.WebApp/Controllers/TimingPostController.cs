@@ -1,4 +1,5 @@
 ﻿using Base.Domain.ViewModels;
+using Base.Service.ViewModel;
 using Base.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
@@ -16,21 +17,7 @@ namespace Base.WebApp.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            /*var response = await _httpClient.GetAsync("https://localhost:7083/api/TimingPost/GetAll");
-            if (response.IsSuccessStatusCode)
-            {
-                var responseData = await response.Content.ReadAsStringAsync();
-                var yourModels = System.Text.Json.JsonSerializer.Deserialize<IEnumerable<TimingPostVM>>(responseData, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });*/
                 return View();
-           /* }
-            else
-            {
-                // Xử lý khi gặp lỗi
-                return View();
-            }*/
         }
 
         public async Task<IActionResult> GetData()
@@ -51,7 +38,6 @@ namespace Base.WebApp.Controllers
                 return View();
             }
         }
-
 
         public async Task<JsonResult> Create(TimingPost timingPost)
         {            
