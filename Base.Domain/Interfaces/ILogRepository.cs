@@ -9,6 +9,12 @@ namespace Base.Domain.Interfaces
 {
     public interface ILogRepository 
     {
-        //IEnumerable<LogVM> GetPopularDevelopers(int count);
+        public void AddLog(LogVM logVM);
+
+        public IEnumerable<LogVM> GetAllLog();
+
+        public LogVM GetLogById(int id);
+
+        public bool CheckLogById(int id);
     }
 }

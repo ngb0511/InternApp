@@ -1,4 +1,4 @@
-﻿using Base.Data.Infrastructure.UnitOfWork;
+using Base.Data.Infrastructure.UnitOfWork;
 using Base.Data.Models;
 using Base.Data.Repositories;
 using Base.Domain.Interfaces;
@@ -30,6 +30,8 @@ builder.Services.AddTransient<IUserAssignRepository,UserAssignRepository>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddDbContext<Task01Context>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
