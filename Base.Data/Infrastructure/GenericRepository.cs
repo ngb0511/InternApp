@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Data.Infrastructure.Repositories
+namespace Base.Data.Infrastructure
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
@@ -18,14 +18,9 @@ namespace Base.Data.Infrastructure.Repositories
             _context = context;
         }
 
-        public virtual void Add(T entity)
+        public void Add(T entity)
         {
             _context.Set<T>().Add(entity);
-        }
-
-        public void AddRange(IEnumerable<T> entities)
-        {
-            _context.Set<T>().AddRange(entities);
         }
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> expression)
@@ -33,7 +28,7 @@ namespace Base.Data.Infrastructure.Repositories
             return _context.Set<T>().Where(expression);
         }
 
-        public virtual IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll()
         {
             return _context.Set<T>().ToList();
         }
@@ -43,9 +38,14 @@ namespace Base.Data.Infrastructure.Repositories
             return _context.Set<T>().Find(id);
         }
 
-        public virtual void Remove(int id)
+        public void Remove(T entity)
         {
-            _context.Set<T>().Remove(_context.Set<T>().Find(id));
+            _context.Set<T>().Remove(entity);
+        }
+
+        public void AddRange(IEnumerable<T> entities)
+        {
+            _context.Set<T>().AddRange(entities);
         }
 
         public void RemoveRange(IEnumerable<T> entities)
@@ -54,12 +54,9 @@ namespace Base.Data.Infrastructure.Repositories
         }
 
         public void Update(T entity)
-
         {
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
-
     }
-
 }

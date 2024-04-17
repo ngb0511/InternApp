@@ -1,30 +1,21 @@
-using Base.Data.Infrastructure.UnitOfWork;
+using Base.Data.Infrastructure;
+using Base.Data.Infrastructure.Interfaces;
 using Base.Data.Models;
-using Base.Domain.Interfaces;
+using Base.Data.Repositories;
+using Base.Service.Constract;
+using Base.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin",
-        builder =>
-        {
-            builder.WithOrigins("https://localhost:7128") // Thay đổi thành nguồn của bạn
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
-});
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<Task01Context>();
-builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<Task01Context>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IDummyCodeRepository, DummyCodeRepository>();
+builder.Services.AddScoped<IDummyCodeService, DummyCodeService>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -36,10 +27,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+    await next.Invoke();
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-app.UseCors("AllowSpecificOrigin");
 
 app.MapControllers();
 

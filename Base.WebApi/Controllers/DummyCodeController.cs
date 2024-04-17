@@ -1,5 +1,4 @@
 ﻿using Base.Data.Models;
-using Base.Domain.Interfaces;
 using Base.Domain.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +8,10 @@ using System.IO;
 using ExcelDataReader;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Drawing;
+using System.Drawing.Printing;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Base.Data.Infrastructure.Interfaces;
+using Base.Service.Constract;
 //using Cake.Core.IO;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -19,78 +22,96 @@ namespace Base.WebApi.Controllers
     [ApiController]
     public class DummyCodeController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public DummyCodeController(IUnitOfWork unitOfWork)
+        //private readonly IUnitOfWork _unitOfWork;
+        private readonly IDummyCodeService _dummyCodeService;
+        public DummyCodeController(IDummyCodeService dummyCodeService)
         {
-            _unitOfWork = unitOfWork;
+            _dummyCodeService = dummyCodeService;
         }
 
         [HttpGet("GetAllDummyCode")]
         public IActionResult GetAllDummyCode()
         {
-            var getAllDummyCode = _unitOfWork.DummyCodes.GetAllDummyCode();
+            var getAllDummyCode = _dummyCodeService.GetAllDummyCode();
             return Ok(getAllDummyCode);
+        }
+
+        [HttpGet("GetPagedDummyCode")]
+        public IActionResult GetPagedDummyCode([FromQuery] int page, [FromQuery] int pageSize)
+        {
+            var DummyCodeVMs = _dummyCodeService.GetResultModel(page, pageSize); // Số lượng tổng số dòng trong cơ sở dữ liệu
+
+            // Trả về dữ liệu phân trang và thông tin về tổng số trang, trang hiện tại và dữ liệu của trang đó
+            return Ok(DummyCodeVMs);
+        }
+
+        [HttpGet("GetTotalPages/{pageSize}")]
+        public int GetTotalPages(int pageSize)
+        {
+            if (_dummyCodeService.GetAllDummyCode() != null)
+            {
+                var totalCount = _dummyCodeService.GetAllDummyCode().Count();
+                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                return totalPages;
+            }
+
+            return 0;
+        }
+
+
+        [HttpGet("FindDummyCodeByDpName")]
+        public IActionResult FindDummyCodeByDpName(string dpName)
+        {
+            var DummyCodes = _dummyCodeService.FindDummyCode(e => e.DpName == dpName);
+            return Ok(DummyCodes);
         }
 
         [HttpGet("GetDummyCodeById/{id}")]
         public IActionResult GetDummyCodeById(int id)   
         {
-            var getDummyCode = _unitOfWork.DummyCodes.GetDummyCodeById(id);
+            var getDummyCode = _dummyCodeService.GetDummyCodeById(id);
             return Ok(getDummyCode);
         }
 
         [HttpPost("AddDummyCode")]
-        public IActionResult AddDummyCode(DummyCodeVM dummyCodeVM)
+        public async Task<IActionResult> AddDummyCode(DummyCodeVM dummyCodeVM)
         {
-            _unitOfWork.DummyCodes.AddDummyCode(dummyCodeVM);
-            _unitOfWork.Complete();
+            var result = await _dummyCodeService.AddDummyCode(dummyCodeVM);
+            if (!result)
+            {
+                return BadRequest("Thêm ko thành công");
+            }
 
             return Ok();
         }
 
         [HttpPut("UpdateDummyCode/{id}")]
-        public IActionResult UpdateDummyCode(int id, DummyCodeVM dummyCodeVM)
+        public async Task<IActionResult> UpdateDummyCode(int id, DummyCodeVM dummyCodeVM)
         {
-            if (id != dummyCodeVM.Id)
-            {
-                return BadRequest();
-            }
-
-            var checkExist = _unitOfWork.DummyCodes.CheckDummyCodeById(id);
-            if (checkExist == null)
+            if (!_dummyCodeService.CheckDummyCodeById(id))
             {
                 return NotFound();
             }
 
-            _unitOfWork.DummyCodes.UpdateDummyCode(dummyCodeVM);
+            var result = await _dummyCodeService.UpdateDummyCode(dummyCodeVM);
 
-            try
-            {
-                _unitOfWork.Complete();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw;
-            }
-
-            return NoContent();
+            return Ok(result);
         }
 
         [HttpDelete("DeleteDummyCode/{id}")]
-        public IActionResult DeleteDummyCode(int id)
+        public async Task<IActionResult> DeleteDummyCode(int id)
         {
-            /*var checkExist = _unitOfWork.DummyCodes.CheckDummyCodeById(id);
-            if (checkExist == null)
+            var dummyCodeVM = _dummyCodeService.GetDummyCodeById(id);
+
+            var result = await _dummyCodeService.RemoveDummyCode(dummyCodeVM);
+
+            if (!result)
             {
-                return NotFound();
-            }*/
+                return BadRequest("Không thể xóa");
+            }
 
-            //var dummyCode = _unitOfWork.DummyCodes.GetDummyCodeById(id);
-
-            _unitOfWork.DummyCodes.DeleteDummyCode(id);
-            _unitOfWork.Complete();
-
-            return NoContent();
+            return Ok(dummyCodeVM);
         }
 
         private async Task<string> WriteFile(IFormFile file)
@@ -114,9 +135,8 @@ namespace Base.WebApi.Controllers
                     await file.CopyToAsync(stream);
                 }
             }
-            catch (Exception ex)
-            {
-            }
+            catch(Exception) { }
+
             return filename;
         }
 
@@ -125,55 +145,27 @@ namespace Base.WebApi.Controllers
         {
             var result = await WriteFile(file);
 
-            List<DummyCodeVM> dummyCodeVMs = _unitOfWork.DummyCodes.GetDummyCodeFromExcel(result, id).ToList();
-            List<DummyCodeVM> dummyCodeVMError = new List<DummyCodeVM>();
+            List<DummyCodeVM> dummyCodeVMs = _dummyCodeService.GetDummyCodeFromExcel(result, id).ToList();
 
-            foreach (var item in dummyCodeVMs)
-            {
-                if (_unitOfWork.DummyCodes.CheckDummyCodeExisted(item))
-                {
-                    dummyCodeVMError.Add(item);
-                }
-                if ((item.Material == null) || (item.DpName == string.Empty) || (item.Description == string.Empty))
-                {
-                    dummyCodeVMError.Add(item);
-                }
-            }
+            IEnumerable<DummyCodeVM> dummyCodeVMError = await _dummyCodeService.AddRangeDummyCode(dummyCodeVMs);
 
-            if (dummyCodeVMError.Count != 0)
+            List<DummyCodeVM> dummyCodeVMErrorList = dummyCodeVMError.ToList();
+
+            if (dummyCodeVMErrorList.Count != 0)
             {
                 return NotFound(dummyCodeVMError);
             }
-            else
-            {
-                _unitOfWork.DummyCodes.AddRangeDummyCode(dummyCodeVMs);
-            }
 
-            try
-            {
-                _unitOfWork.Complete();
-            }
-            catch (Exception ex) { }
             return Ok();
         }
 
         [HttpGet("ExportDummyCodeToExcel")]
         public async Task<IActionResult> ExportDummyCodeToExcel()
         {
-            var getAllDummyCode = _unitOfWork.DummyCodes.GetAllDummyCode();
+            var getAllDummyCode = _dummyCodeService.GetAllDummyCode();
+            byte[] data = await _dummyCodeService.ExportExcel(getAllDummyCode);
 
-            byte[] data = await _unitOfWork.DummyCodes.ExportExcel(getAllDummyCode);
-            /*string filePath = Path.Combine(Path.GetTempPath(), "Exported_DummyCode.xlsx");
-
-            int i = 1;
-            while (System.IO.File.Exists(filePath))
-            {
-                filePath = Path.Combine(Path.GetTempPath(), "Exported_DummyCode" + "(" + i + ")" +".xlsx");
-                i++;
-            }
-
-            System.IO.File.WriteAllBytes(filePath, data);*/
-
+            // Trả về tệp Excel từ dữ liệu
             return File(data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Exported_DummyCode.xlsx");
         }
 
@@ -181,10 +173,5 @@ namespace Base.WebApi.Controllers
         {
             throw new NotImplementedException();
         }
-
-        /*bool CheckExistedDummyCode(DummyCodeVM dummyCodeVM)
-        {
-            return false;
-        }*/
     }
 }

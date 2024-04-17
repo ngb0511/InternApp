@@ -16,6 +16,6 @@ namespace Base.Domain.ViewModels
 
         public int CreatedBy { get; set; }
 
-        //public virtual UserAssign CreatedByNavigation { get; set; } = null!;
+        //public UserAssign UserAssign { get; set; } = null!;
     }
 }

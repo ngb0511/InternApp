@@ -2,14 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Base.Domain.Interfaces
 {
-    public interface IUserAssignRepository : IGenericRepository<UserAssignVM>
+    public interface IExcelRepository<T> where T : class
     {
-        public bool IsExistedUserName(string userName);
+        public Task<byte[]> ExportExcel(IEnumerable<T> entities);
     }
 }

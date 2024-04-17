@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Domain.ViewModels
+namespace Base.Domain.RequestModels
 {
-    public class TimingPostVM
-    {  
+    public class LogRM
+    {
         public int Id { get; set; }
-        public string Customer {  get; set; }
-        public string PostName { get; set; }
-        public DateTime PostStart { get; set; }
-        public DateTime PostEnd { get; set; }
+
+        public string Detail { get; set; } = null!;
+
         public DateTime CreatedDate { get; set; }
+
         public int CreatedBy { get; set; }
     }
 }
