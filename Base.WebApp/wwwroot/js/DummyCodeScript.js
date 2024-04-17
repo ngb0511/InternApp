@@ -1,5 +1,5 @@
-﻿var currentPage = 1; // Trang hiện tại
-var pageSize = 10; // Số lượng dòng mỗi trang
+﻿var currentPage = 1;
+var pageSize = 10;
 var totalPages = getTotalPages(pageSize);
 
 $(function () {
@@ -7,28 +7,29 @@ $(function () {
         $('#loading-icon').show();
     });
 
-    // Ẩn biểu tượng loading khi yêu cầu AJAX kết thúc
     $(document).on("ajaxStop", function () {
         $('#loading-icon').hide();
     });
-    document.getElementById("current-page").innerText = "Trang " + currentPage;
+
+    ChangePrevButtonsStatus(true);
+    ChangeNextButtonsStatus(false);
 
     loadData(currentPage, pageSize);
 });
 
 function loadData(page, pageSize) {
-    // Hiển thị biểu tượng loading khi gửi yêu cầu AJAX
+
+    totalPages = getTotalPages(pageSize);
+
     $.ajax({
         url: "/DummyCode/GetData",
         method: 'GET',
         dataType: 'json',
-        data: { page: page, pageSize: pageSize }, // Truyền tham số page và pageSize
+        data: { page: page, pageSize: pageSize }, 
         success: function (data) {
             $('#people-table tbody').empty();
-            console.log(data);
-            // Đổ dữ liệu mới vào bảng
+
             $.each(data, function (index, dummyCode) {
-                //var stt = parseInt(index) + 1;
                 var viewLink = '<i onclick="GetData(' + 1 + ', ' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-eye"></i>';
                 var editLink = '<i onclick="GetData(' + 2 + ', ' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-edit"></i>';
                 var deleteLink = '<i onclick="DummyCodeDelete(' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-trash"></i>';
@@ -49,35 +50,48 @@ function loadData(page, pageSize) {
 
 function FirstPageOnClick () {
     currentPage = 1;
-    document.getElementById("current-page").innerText = "Trang " + currentPage;
+    ChangePrevButtonsStatus(true);
+    ChangeNextButtonsStatus(false);
     loadData(currentPage, pageSize);
 };
 
-// Event khi nhấn nút "Trang trước"
 function PrevPageOnClick() {
-    console.log(currentPage);
+
+    if (currentPage > 2) {
+        ChangePrevButtonsStatus(false);
+    }
+    else {
+        ChangePrevButtonsStatus(true);
+    }
+
     if (currentPage > 1) {
         currentPage--;
-        document.getElementById("current-page").innerText = "Trang " + currentPage;
         loadData(currentPage, pageSize);
     }
+    ChangeNextButtonsStatus(false);
 };
 
-// Event khi nhấn nút "Trang sau"
 async function NextPageOnClick() {
     var totalPages = await getTotalPages(pageSize);
-    console.log(totalPages);
+    if (currentPage < totalPages - 1) {
+        ChangeNextButtonsStatus(false);
+    }
+    else {
+        ChangeNextButtonsStatus(true);
+    }
+
     if (currentPage < totalPages) {
         currentPage++;
-        document.getElementById("current-page").innerText = "Trang " + currentPage;
         loadData(currentPage, pageSize);
     }
+    ChangePrevButtonsStatus(false);
 }
 
 async function LastPageOnClick() {
     var totalPages = await getTotalPages(pageSize);
     currentPage = totalPages;
-    document.getElementById("current-page").innerText = "Trang " + currentPage;
+    ChangePrevButtonsStatus(false);
+    ChangeNextButtonsStatus(true);
     loadData(currentPage, pageSize);
 }
 
@@ -90,22 +104,20 @@ async function getTotalPages(pageSize) {
             data: { pageSize: pageSize }
         });
 
+        document.getElementById("current-page").innerText = "Page " + currentPage + "/" + response;
         return response;
     } catch (error) {
         console.error('Error:', error);
-        // Xử lý khi gặp lỗi
-        return 0; // hoặc trả về giá trị mặc định khác tùy thuộc vào trường hợp cụ thể của bạn
+        return 0; 
     }
 }
 
 function ItemsPerPageOnChange() {
     var selectedValue = document.getElementById("items-per-page").value;
-    pageSize = parseInt(selectedValue); // Cập nhật giá trị pageSize
+    pageSize = parseInt(selectedValue);
     currentPage = 1;
-
-    // Gọi hàm loadData với trang hiện tại và pageSize mới
-    document.getElementById("current-page").innerText = "Trang " + currentPage;
-
+    ChangePrevButtonsStatus(true);
+    ChangeNextButtonsStatus(false);
     
     loadData(currentPage, pageSize);
 }
@@ -119,7 +131,7 @@ function ExportToExcel() {
         type: 'GET',
         url: "/DummyCode/ExportExcel",
         xhrFields: {
-            responseType: 'blob' // Đặt kiểu dữ liệu trả về là blob
+            responseType: 'blob' 
         },
         success: function (data) {
             var url = window.URL.createObjectURL(data);
@@ -131,7 +143,6 @@ function ExportToExcel() {
             window.URL.revokeObjectURL(url);
         },
         error: function () {
-            // Xử lý lỗi
             Swal.fire({
                 icon: "error",
                 title: "Đã xảy ra lỗi khi xuất Excel",
@@ -306,7 +317,6 @@ function CreateEvent() {
                         }
                     });
                 } else {
-                    // Handle other error cases
                 }
             }
         })
@@ -327,7 +337,6 @@ function CreateEvent() {
     }
 }
 
-//Lấy thông tin người dùng để cập nhật
 function GetData(actionID, id) {
     console.log(id);
     $.ajax({
@@ -398,7 +407,6 @@ function DummyCodeDelete(id) {
                     })
                 },
                 error: function (xhr, status, error) {
-                    // Xử lý lỗi nếu có
                     console.error('Lỗi:', error);
                 }
             });
@@ -409,8 +417,8 @@ function DummyCodeDelete(id) {
 function FormatDate(date) {
     var datetime = new Date(date);
     var year = datetime.getFullYear();
-    var month = ('0' + (datetime.getMonth() + 1)).slice(-2); // Thêm 0 phía trước nếu cần
-    var day = ('0' + datetime.getDate()).slice(-2); // Thêm 0 phía trước nếu cần
+    var month = ('0' + (datetime.getMonth() + 1)).slice(-2);
+    var day = ('0' + datetime.getDate()).slice(-2);
     var formattedDate = year + '-' + month + '-' + day;
 
     return formattedDate
@@ -419,11 +427,45 @@ function FormatDate(date) {
 function FormatDateTime(dateTime) {
     var date = new Date(dateTime);
     var year = date.getFullYear();
-    var month = ('0' + (date.getMonth() + 1)).slice(-2); // Thêm 0 phía trước nếu cần
-    var day = ('0' + date.getDate()).slice(-2); // Thêm 0 phía trước nếu cần
-    var hours = ('0' + date.getHours()).slice(-2); // Thêm 0 phía trước nếu cần
-    var minutes = ('0' + date.getMinutes()).slice(-2); // Thêm 0 phía trước nếu cần
-    var seconds = ('0' + date.getSeconds()).slice(-2); // Thêm 0 phía trước nếu cần
+    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var day = ('0' + date.getDate()).slice(-2);
+    var hours = ('0' + date.getHours()).slice(-2);
+    var minutes = ('0' + date.getMinutes()).slice(-2);
+    var seconds = ('0' + date.getSeconds()).slice(-2);
     var formattedDateTime = day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
     return formattedDateTime;
+}
+
+function ChangePrevButtonsStatus(disabled) {
+    var prevBtn = document.getElementById("prevPage");
+    var firstBtn = document.getElementById("firstPage");
+    if (disabled) {
+        prevBtn.style.opacity = 0.2;
+        prevBtn.style.pointerEvents = "none";
+        firstBtn.style.opacity = 0.2;
+        firstBtn.style.pointerEvents = "none";
+    }
+    else {
+        prevBtn.style.opacity = 1;
+        prevBtn.style.pointerEvents = "auto";
+        firstBtn.style.opacity = 1;
+        firstBtn.style.pointerEvents = "auto";
+    }
+}
+
+function ChangeNextButtonsStatus(disabled) {
+    var nextBtn = document.getElementById("nextPage");
+    var lastBtn = document.getElementById("lastPage");
+    if (disabled) {
+        nextBtn.style.opacity = 0.2;
+        nextBtn.style.pointerEvents = "none";
+        lastBtn.style.opacity = 0.2;
+        lastBtn.style.pointerEvents = "none";
+    }
+    else {
+        nextBtn.style.opacity = 1;
+        nextBtn.style.pointerEvents = "auto";
+        lastBtn.style.opacity = 1;
+        lastBtn.style.pointerEvents = "auto";
+    }
 }

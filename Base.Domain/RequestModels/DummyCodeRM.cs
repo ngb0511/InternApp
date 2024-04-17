@@ -23,11 +23,4 @@ namespace Base.Domain.RequestModels
 
         public int CreatedBy { get; set; }
     }
-
-    public class ApiResultModel
-    {
-        public int TotalPages { get; set; }
-        public int CurrentPage { get; set; }
-        public List<DummyCodeVM> DummyCodeVM { get; set; }
-    }
 }

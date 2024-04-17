@@ -30,34 +30,33 @@
         </tr>
     </thead>
     <tbody>
-        <!-- Dữ liệu sẽ được cập nhật tại đây -->
     </tbody>
 </table>
 
-<div class="pagination-container" style="position:static; bottom: 20px; right: 0px;">
-    <button id="first-page" onclick="FirstPageOnClick()">
-        <i class="fas fa-angle-double-left"></i> <!-- Icon cho trang đầu -->
-    </button>
-    <button id="prev-page" onclick="PrevPageOnClick()">
-        <i class="fas fa-angle-left"></i> <!-- Icon cho trang trước -->
-    </button>
-    <span id="current-page"></span>
-    <button id="next-page" onclick="NextPageOnClick()">
-        <i class="fas fa-angle-right"></i> <!-- Icon cho trang sau -->
-    </button>
-    <button id="last-page" onclick="LastPageOnClick()">
-        <i class="fas fa-angle-double-right"></i> <!-- Icon cho trang cuối -->
-    </button>
-    <select id="items-per-page" onchange="ItemsPerPageOnChange()">
-        <option value="10">10</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-    </select>
+
+
+<div class="button-container" style="display: flex; justify-content: space-between;">
+    <div>
+        <select id="items-per-page" onchange="ItemsPerPageOnChange()" style="margin-left: 10px; cursor: pointer;">
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        <span> items/page</span>
+    </div>
+    <div id="loading-icon" style="display: none;">
+        <i class="fa fa-spinner fa-spin"></i> Loading...
+    </div>
+    <div class="pagination-container" style="position: static; bottom: 20px; right: 0px;">
+        <i id="firstPage" class="fas fa-angle-double-left" onclick="FirstPageOnClick()" style="margin-right: 10px; cursor: pointer;"></i>
+        <i id="prevPage" class="fas fa-angle-left" onclick="PrevPageOnClick()" style="margin-right: 10px; cursor: pointer;"></i>
+        <span id="current-page"></span>
+        <i id="nextPage" class="fas fa-angle-right" onclick="NextPageOnClick()" style="margin-left: 10px; cursor: pointer;"></i>
+        <i id="lastPage" class="fas fa-angle-double-right" onclick="LastPageOnClick()" style="margin-left: 10px; cursor: pointer;"></i>
+    </div>
 </div>
 
-<div id="data-container">
-    <!-- Dữ liệu sẽ được cập nhật ở đây -->
-</div>
+<div id="data-container"></div>
 
 <div id="modalCreate" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -251,12 +250,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- HTML của biểu tượng loading -->
-<div id="loading-icon" style="display: none;">
-    <!-- Đây có thể là một hình ảnh GIF hoặc biểu tượng từ thư viện font -->
-    <i class="fa fa-spinner fa-spin"></i> Loading...
 </div>
 
 <div id="confirmationMessage" style="display: none;">
