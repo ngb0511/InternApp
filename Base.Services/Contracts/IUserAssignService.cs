@@ -9,8 +9,8 @@ namespace Base.Service.Contracts
 {
     public interface IUserAssignService
     {
-        Task<UserAssign?> GetUserById(int id);
-
-        Task<bool> IsExistedUserName(string username);
+        UserAssign GetUserById(int id);
+        bool IsExistedUserName(string username);
+        string GetUserFullName(int id);
     }
 }

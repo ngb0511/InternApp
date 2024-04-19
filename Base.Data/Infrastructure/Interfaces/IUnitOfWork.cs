@@ -1,16 +1,17 @@
-﻿using System;
+﻿using Base.Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Domain.Interfaces
+namespace Base.Data.Infrastructure.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
-        IDummyCodeRepository DummyCodes { get; }
-        ILogRepository Logs { get; }
-        void Complete();
+        void SaveChanges();
+
+        Task SaveChangesAsync();
     }
 
 }

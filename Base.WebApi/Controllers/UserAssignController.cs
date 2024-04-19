@@ -21,7 +21,7 @@ namespace Base.WebApi.Controllers
         [HttpGet]
         public IActionResult CheckUserAssign(string userName)
         {
-            if (_userAssignService.IsExistedUserName(userName).Result)
+            if (_userAssignService.IsExistedUserName(userName))
             {
                 return Ok();
             }

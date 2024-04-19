@@ -1,17 +1,6 @@
-﻿using Base.Data.Infrastructure.UnitOfWork;
-using Base.Data.Models;
-using Base.Domain.Interfaces;
-using Base.Domain.ViewModels;
-using Base.Service.Contracts;
-using Base.Service.Models.TimingPost;
-using Base.Service.Services;
-using Base.WebApi.Models;
-using ExcelDataReader;
-using Microsoft.AspNetCore.Hosting.Server;
+﻿using Base.Service.Contracts;
+using Base.Domain.Models.TimingPost;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using System.IO;
-using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -60,8 +49,11 @@ namespace Base.WebApi.Controllers
         {
             try
             {
-                _timingPostService.Add(timingPost);
-                return Ok(new { Message = "Thêm thành công", Success = true});
+                if (!_timingPostService.Add(timingPost).Result)
+                {
+                    return BadRequest(new { message = "Dữ liệu thêm không hợp lệ", success = false });
+                }
+                return Ok(new { message = "Thêm thành công", success = true });
             }
             catch
             {
@@ -75,7 +67,7 @@ namespace Base.WebApi.Controllers
         {
             try
             {
-                bool result = _timingPostService.Update(timingPost).Result;
+                var result = await _timingPostService.Update(timingPost);
                 if (!result)
                 {
                     return BadRequest();
@@ -130,7 +122,8 @@ namespace Base.WebApi.Controllers
             {
                 return Ok(new { message = "Import dữ liệu thành công", success = true});
             }
-            return Ok(new { message = "Không có gì thay đổi", success = true});
+            var error = _timingPostService.GetErrorMessage();
+            return Ok(new { message = error, success = false});
         }
 
         [HttpGet("ExportExcelFile")]

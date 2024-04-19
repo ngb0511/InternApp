@@ -1,29 +1,34 @@
-﻿using Base.Data.Infrastructure.UnitOfWork;
-using Base.Data.Models;
+﻿using Base.Data.Models;
 using Base.Data.Repositories;
-using Base.Domain.Interfaces;
 using Base.Domain.ViewModels;
 using Base.Service.Contracts;
-using Base.Service.Models.TimingPost;
+using Base.Domain.Models.TimingPost;
 using ExcelDataReader;
 using OfficeOpenXml.Style;
 using OfficeOpenXml;
 using System.Data;
 using System.Linq.Expressions;
 using System.Text;
-using Base.Service.ViewModel;
+using Base.Data.Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Base.Domain.Requests;
 
 namespace Base.Service.Services
 {
-    public class TimingPostService : ITimingPostService
+    public class TimingPostService : AbsService, ITimingPostService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserAssignService _userAssignService;
         private readonly ITimingPostRepository _timingPostRepository;
 
-        public TimingPostService(ITimingPostRepository timingPostRepository, IUnitOfWork unitOfWork)
+
+        public TimingPostService(ITimingPostRepository timingPostRepository, 
+            IUnitOfWork unitOfWork, 
+            IUserAssignService userAssignService)
         {
             _timingPostRepository = timingPostRepository;
             _unitOfWork = unitOfWork;
+            _userAssignService = userAssignService;
         }
 
         public IEnumerable<TimingPostVM> GetAll()
@@ -49,13 +54,18 @@ namespace Base.Service.Services
 
         public async Task<bool> Add(TimingRequest TimingRequest)
         {
-            var timingPost = Mapper(TimingRequest);
-            _timingPostRepository.Add(timingPost);
             try
             {
-                _unitOfWork.Complete();
+                var timingPost = Mapper(TimingRequest);
+                var exist = IsExistTimingPost(timingPost);
+                if (exist)
+                {
+                    return false;
+                }
+                _timingPostRepository.Add(timingPost);
+                await _unitOfWork.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -64,17 +74,18 @@ namespace Base.Service.Services
 
         public async Task<bool> Update(TimingRequest TimingRequest)
         {
-            var timingPost = Mapper(TimingRequest);
-            if (!_timingPostRepository.IsExistedById(TimingRequest.Id))
-            {
-                return false;
-            }
-            _timingPostRepository.Update(timingPost);
             try
             {
-                _unitOfWork.Complete();
+                var timingPost = Mapper(TimingRequest);
+                var exist = IsExistTimingPost(timingPost);
+                if (exist)
+                {
+                    return false;
+                }
+                _timingPostRepository.Update(timingPost);
+                await _unitOfWork.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -83,22 +94,21 @@ namespace Base.Service.Services
 
         public async Task<bool> Remove(int id)
         {
-            if (!_timingPostRepository.IsExistedById(id))
+            if (!IsExistedById(id))
             {
                 return false;
             }
             _timingPostRepository.Remove(id);
             try
             {
-                _unitOfWork.Complete();
+                await _unitOfWork.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
             return true;
         }
-
 
         public TimingPost Mapper(TimingRequest request)
         {
@@ -123,7 +133,7 @@ namespace Base.Service.Services
             timingPostVM.PostStart = timing.PostStart;
             timingPostVM.PostEnd = timing.PostEnd;
             timingPostVM.CreatedDate = timing.CreatedDate;
-            timingPostVM.CreatedByName = _timingPostRepository.GetUserFullName(timing.CreatedBy);
+            timingPostVM.CreatedByName = _userAssignService.GetUserFullName(timing.CreatedBy);
 
             return timingPostVM;
         }
@@ -162,41 +172,79 @@ namespace Base.Service.Services
                     dtCloned.ImportRow(ds.Tables[0].Rows[i]);
                 }
 
-                List<TimingPost> timingPosts = new List<TimingPost>();
+                List<TimingPostRequestImport> timingPosts = new List<TimingPostRequestImport>();
                 timingPosts = (from DataRow dr in dtCloned.Rows
-                               select new TimingPost()
+                               select new TimingPostRequestImport()
                                {
+                                   Index = Convert.ToInt32(dr["index"].ToString()),
                                    Customer = dr["Customer"].ToString(),
                                    PostName = dr["PostName"].ToString(),
-                                   PostStart = DateTime.Parse(dr["PostStart"].ToString()),
-                                   PostEnd = DateTime.Parse(dr["PostEnd"].ToString()),
+                                   PostStart = dr["PostStart"].ToString(),
+                                   PostEnd = dr["PostEnd"].ToString(),
                                }).ToList();
-                List<TimingPost> timingPostError = new List<TimingPost>();
+                List<int> listIndexEmpty = new List<int>();
+                List<int> listIndexDuplicate = new List<int>();
+                List<int> listIndexWrongLogic = new List<int>();
+
+                List<TimingPost> listTimingPosts = new List<TimingPost>();
                 foreach (var item in timingPosts)
                 {
-                    if (_timingPostRepository.IsExisted(item))
+                    if (string.IsNullOrEmpty(item.PostName)
+                            || string.IsNullOrEmpty(item.Customer)
+                            || string.IsNullOrEmpty(item.PostStart)
+                            || string.IsNullOrEmpty(item.PostEnd))
                     {
-                        timingPostError.Add(item);
+                        listIndexEmpty.Add(item.Index);
+                        continue;
                     }
-                    if ((item.Customer == null) || (item.PostName == string.Empty) || (item.PostStart.ToString() == "") || (item.PostEnd.ToString() == ""))
+
+
+                    DateTime PostStart = DateTime.Parse(item.PostStart);
+                    DateTime PostEnd = DateTime.Parse(item.PostEnd);
+                    if (PostStart >= PostEnd)
                     {
-                        timingPostError.Add(item);
+                        listIndexWrongLogic.Add(item.Index);
+                        continue;
                     }
+
+                    var exist = _timingPostRepository.Find(x => x.Customer.Trim().ToUpper() == item.Customer.Trim().ToUpper()
+                                                         && x.PostName.Trim().ToUpper() == item.PostName.Trim().ToUpper()
+                                                         && x.PostStart == PostStart
+                                                         && x.PostEnd == PostEnd).Any();
+                    if (exist)
+                    {
+                        listIndexDuplicate.Add(item.Index);
+                    }
+                    var timingPost = new TimingPost()
+                    {
+                        Customer = item.Customer,
+                        PostName = item.PostName,
+                        PostStart = PostStart,
+                        PostEnd = PostEnd,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = 1
+                    };
+                    listTimingPosts.Add(timingPost);
                 }
 
-                if(timingPostError.Count != 0)
-                {
+                if (listIndexEmpty.Any())
+                    SetError($"There is blank data at line: {string.Join(", ", listIndexEmpty)}");
+
+                if (listIndexWrongLogic.Any())
+                    SetError($"Post start must before post end or start key order must before end key order: {string.Join(", ", listIndexWrongLogic)}");
+
+                if (listIndexDuplicate.Any())
+                    SetError($"Timing post is already exist at line: {string.Join(", ", listIndexDuplicate)}");
+
+                if (!String.IsNullOrEmpty(GetError()))
                     return false;
-                }
-                else
-                {
-                    _timingPostRepository.AddRange(timingPosts);
-                }
+
                 try
                 {
-                    _unitOfWork.Complete();
+                    _timingPostRepository.AddRange(listTimingPosts);
+                    await _unitOfWork.SaveChangesAsync();
                 }
-                catch (Exception ex) { }
+                catch (Exception) { }
                 return true;
             }
         }
@@ -221,8 +269,8 @@ namespace Base.Service.Services
                 workSheet.Cells[i + 1, 1].Value = (i + 1).ToString();
                 workSheet.Cells[i + 1, 2].Value = timingPosts[i].Customer.ToString();
                 workSheet.Cells[i + 1, 3].Value = timingPosts[i].PostName.ToString();
-                workSheet.Cells[i + 1, 4].Value = timingPosts[i].PostStart.ToString();
-                workSheet.Cells[i + 1, 5].Value = timingPosts[i].PostEnd.ToString();
+                workSheet.Cells[i + 1, 4].Value = Date(timingPosts[i].PostStart);
+                workSheet.Cells[i + 1, 5].Value = Date(timingPosts[i].PostEnd);
                 workSheet.Cells[i + 1, 6].Value = timingPosts[i].CreatedDate.ToString();
                 workSheet.Cells[i + 1, 7].Value = timingPosts[i].CreatedByName.ToString();
             }
@@ -254,5 +302,44 @@ namespace Base.Service.Services
             var listTimingPostVM = GetAll().Skip((pageIndex-1)*pageSize).Take(pageSize).ToList();
             return listTimingPostVM;
         }
+
+        public string Date(DateTime date)
+        {
+            var day = date.Day.ToString();
+            var month = date.Month.ToString();
+            var year = date.Year.ToString();
+
+            return day+"/"+month+"/"+year;
+        }
+
+        public bool IsExistTimingPost(TimingPost timingPost)
+        {
+            var exist = _timingPostRepository.Find(x => x.Customer.Trim().ToUpper() == timingPost.Customer.Trim().ToUpper()
+                                                         && x.PostName.Trim().ToUpper() == timingPost.PostName.Trim().ToUpper()
+                                                         && x.PostStart == timingPost.PostStart
+                                                         && x.PostEnd == timingPost.PostEnd).Any();
+            return exist;
+        }
+
+        public bool IsExistedById(int id)
+        {
+            var timing = _timingPostRepository.GetById(id);
+            if(timing != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public string GetErrorMessage()
+        {
+            return GetError();
+        }
+
+        public string GetSuccessMessage()
+        {
+            return GetMessage();
+        }
+
     }
 }

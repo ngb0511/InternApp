@@ -1,4 +1,5 @@
-﻿using Base.Data.Models;
+﻿using Base.Data.Infrastructure.Interfaces;
+using Base.Data.Models;
 using Base.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,7 +9,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Data.Repositories
+namespace Base.Data.Infrastructure.UnitOfWork
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {

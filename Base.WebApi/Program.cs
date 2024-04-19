@@ -1,3 +1,4 @@
+using Base.Data.Infrastructure.Interfaces;
 using Base.Data.Infrastructure.UnitOfWork;
 using Base.Data.Models;
 using Base.Data.Repositories;
@@ -22,7 +23,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<Task01Context>();
-builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+builder.Services.AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork));
 builder.Services.AddTransient<ITimingPostService, TimingPostService>();
 builder.Services.AddTransient<ITimingPostRepository, TimingRepository>();
 builder.Services.AddTransient<IUserAssignService,UserAssignService>();

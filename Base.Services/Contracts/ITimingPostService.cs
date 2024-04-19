@@ -1,6 +1,7 @@
 ﻿using Base.Data.Models;
-using Base.Service.Models.TimingPost;
-using Base.Service.ViewModel;
+using Base.Domain.Models.TimingPost;
+using Base.Domain.ViewModels;
+using Base.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace Base.Service.Contracts
 {
     public interface ITimingPostService
     {
+        string GetErrorMessage();
+        string GetSuccessMessage();
         IEnumerable<TimingPostVM> GetAll();
 
         Task<bool> Add(TimingRequest TimingRequest);

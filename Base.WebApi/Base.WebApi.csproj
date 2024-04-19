@@ -33,7 +33,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Base.Data\Base.Data.csproj" />
-    <ProjectReference Include="..\Base.Domain\Base.Domain.csproj" />
     <ProjectReference Include="..\Base.Services\Base.Service.csproj" />
   </ItemGroup>
 

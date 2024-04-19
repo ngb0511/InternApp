@@ -1,7 +1,12 @@
-﻿$(document).ready(function () {
-    // Hàm gửi yêu cầu AJAX
-    // Gọi hàm loadData để tải dữ liệu khi trang được load
+﻿var pageIndex = 1;
+var totalPages = 1;
+var pageSize = 10;
+
+$(document).ready(function () {
+
     loadData(1);
+
+    GetTotalPage();
 
     document.getElementById("txtPostStart").addEventListener("change", function () {
         var startDate = new Date(document.getElementById("txtPostStart").value);
@@ -79,31 +84,36 @@
         }
     });
 
+    ButtonStatus(pageIndex);
+
+    console.log(totalPages);
+
 });
 
 function changePageSize() {
     document.getElementById("pageIndex").value = 1;
-    loadData(1); // Gọi loadData với pageIndex = 1 khi thay đổi kích thước trang
+    pageIndex = 1;
+    loadData(pageIndex); // Gọi loadData với pageIndex = 1 khi thay đổi kích thước trang
 }
 
 function changePage() {
-    var pageIndex = parseInt(document.getElementById("pageIndex").value);
+    pageIndex = parseInt(document.getElementById("pageIndex").value);
     loadData(pageIndex); // Gọi loadData với pageIndex mới khi thay đổi trang
 }
 
 function loadData(pageIndex) {
+    document.getElementById("pageIndex").innerText = "Trang " + pageIndex;
     $(document).ajaxStart(function () {
         $('#loading').show();
     });
-
     // Ẩn biểu tượng loading khi yêu cầu AJAX kết thúc
     $(document).ajaxStop(function () {
         $('#loading').hide();
     });
     $('#data-container').empty();
-    console.log(pageIndex)
-    var pageSize = parseInt($('#pageSize').val());
-
+    pageSize = parseInt($('#pageSize').val());
+    GetTotalPage();
+    console.log(pageIndex, pageSize, totalPages);
     // Hiển thị biểu tượng loading khi gửi yêu cầu AJAX
     var baseurl = "https://localhost:7083/api/TimingPost/Paging?pageIndex=" + pageIndex + "&pageSize=" + pageSize;
     $.ajax({
@@ -112,22 +122,22 @@ function loadData(pageIndex) {
         dataType: 'json',
         success: function (data) {
             $('#people-table tbody').empty();
-            // Đổ dữ liệu mới vào bảng
-            $.each(data, function (index, timing) {
-                var editLink = '<button onclick="GetData(' + timing.id + ')" class="btn btn-trash"><i class="fas fa-edit" ></i></button >';
-                var deleteLink = '<button onclick="Delete(' + timing.id + ')" class="btn btn-trash"><i class="fas fa-trash" ></i></button >';
-                if (timing.index > pageSize -1) {
-                    $('#footer').css('display', 'block');
-                } else {
-                    $('#footer').css('display', 'none');
-                }
-                $('#people-table tbody')
-                    .append('<tr><td>' + timing.index + '</td><td>' + timing.customer + '</td><td>' + timing.postName
-                        + '</td><td>' + FormatDateDisplay(timing.postStart) + '</td><td>' + FormatDateDisplay(timing.postEnd)
-                        + '</td><td>' + FormatDateTime(timing.createdDate) + '</td><td>' + timing.createdByName
-                        + '</td><td>' + editLink + ' ' + deleteLink
-                        + '</td></tr>');
-            });
+            if (data.length === 0) {
+                $('#people-table tbody').append('<tr><td colspan="8" class="text-center">Không có dữ liệu để hiển thị</td></tr>');
+            } else {
+                // Đổ dữ liệu mới vào bảng
+                $.each(data, function (index, timing) {
+                    var editLink = '<button onclick="GetData(' + timing.id + ')" class="btn btn-trash"><i class="fas fa-edit" ></i></button >';
+                    var deleteLink = '<button onclick="Delete(' + timing.id + ')" class="btn btn-trash"><i class="fas fa-trash" ></i></button >';
+                    console.log(timing.index, pageSize);
+                    $('#people-table tbody')
+                        .append('<tr><td>' + timing.index + '</td><td>' + timing.customer + '</td><td>' + timing.postName
+                            + '</td><td>' + FormatDateDisplay(timing.postStart) + '</td><td>' + FormatDateDisplay(timing.postEnd)
+                            + '</td><td>' + FormatDateTime(timing.createdDate) + '</td><td>' + timing.createdByName
+                            + '</td><td>' + editLink + ' ' + deleteLink
+                            + '</td></tr>');
+                });
+            }
         },
         error: function (xhr, status, error) {
             console.error('Error:', error);
@@ -155,7 +165,7 @@ function Create() {
     var postName = $("#txtPostName").val();
     var postStart = $("#txtPostStart").val();
     var postEnd = $("#txtPostEnd").val();
-    if (customer.trim() != "" && postName.trim() != "" && postStart.trim() != "" && postEnd.trim() != "") {
+    if (customer.trim() !="" && postName.trim() != "" && postStart.trim() != "" && postEnd.trim() != "") {
         formData.append("Customer", customer);
         formData.append("PostName", postName);
         formData.append("PostStart", postStart);
@@ -188,7 +198,6 @@ function Create() {
                     $("#txtPostStart").val("");
                     $("#txtPostEnd").val("");
                     $("#modalCreate").modal("hide");
-                    var pageIndex = parseInt(document.getElementById("pageIndex").value);
                     loadData(pageIndex);
                     Swal.fire({
                         icon: "success",
@@ -238,7 +247,6 @@ function Update() {
         formData.append("PostStart", postStart);
         formData.append("PostEnd", postEnd);
         formData.append("Id", id);
-        console.log(formData.get('Id'));
         $.ajax({
             type: 'POST',
             url: '/TimingPost/Edit',
@@ -266,7 +274,6 @@ function Update() {
                     $("#up_txtPostStart").val("");
                     $("#up_txtPostEnd").val("");
                     $("#modalUpdate").modal("hide");
-                    var pageIndex = parseInt(document.getElementById("pageIndex").value);
                     loadData(pageIndex);
                     Swal.fire({
                         icon: "success",
@@ -329,7 +336,6 @@ function Delete(id) {
         url: 'https://localhost:7083/api/TimingPost?id=' + id, // Đường dẫn tới action GetData
         type: 'DELETE',
         success: function (data) {
-            var pageIndex = parseInt(document.getElementById("pageIndex").value);
             loadData(pageIndex);
             Swal.fire({
                 icon: "success",
@@ -420,7 +426,6 @@ function Import() {
                 if (data.success == true) {
                     $("#modalImport").modal("hide");
                     $("#fileInput").val(null);
-                    var pageIndex = parseInt(document.getElementById("pageIndex").value);
                     loadData(pageIndex);
                     Swal.fire({
                         icon: "success",
@@ -495,6 +500,75 @@ function Export() {
                     popup: 'animate__animated animate__fadeOutUp'
                 }
             });
+        }
+    });
+}
+
+function PrevPageOnClick() {
+    pageIndex = pageIndex - 1;
+    loadData(pageIndex)
+}
+
+function NextPageOnClick() {
+    pageIndex = pageIndex + 1;
+    loadData(pageIndex);
+}
+
+function FirstPageOnClick() {
+    pageIndex = 1;
+    loadData(pageIndex);
+}
+
+function LastPageOnClick() {
+    pageIndex = totalPages;
+    loadData(pageIndex);
+}
+
+function ButtonStatus(pageIndex) {
+    var buttonPrev = document.getElementById("prev-page");
+    var buttonNext = document.getElementById("next-page"); 
+    var buttonLast = document.getElementById("last-page"); 
+    var buttonFirst = document.getElementById("first-page"); 
+    if (pageIndex > 1) {
+        buttonPrev.disabled = false;
+        buttonFirst.disabled = false;
+    } else {
+        buttonPrev.disabled = true;
+        buttonFirst.disabled = true;
+    }
+    if (totalPages > 1) {
+        $('#footer').css('display', 'block');
+    } else {
+        $('#footer').css('display', 'none');
+    }
+    if (pageIndex >= totalPages) {
+        buttonNext.disabled = true;
+        buttonLast.disabled = true;
+    } else {
+        buttonNext.disabled = false;
+        buttonLast.disabled = false;
+    }
+}
+
+
+function GetTotalPage() {
+    var baseurl = "https://localhost:7083/api/TimingPost/GetAll";
+    $.ajax({
+        url: baseurl, // Đường dẫn tới action GetData
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            var countItem = data.length;
+            totalPages = Math.ceil(countItem / pageSize);
+            document.getElementById("pageTotal").innerText = "/ " + totalPages;
+            ButtonStatus(pageIndex);
+            if (pageIndex > totalPages) {
+                pageIndex = totalPages;
+                loadData(pageIndex);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', error);
         }
     });
 }

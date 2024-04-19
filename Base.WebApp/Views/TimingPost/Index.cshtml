@@ -17,8 +17,8 @@
 <div class="form-group">
     <label for="pageSize">Page Size:</label>
     <select class="form-control" style="width:min-content" id="pageSize" onchange="changePageSize()">
-        <option value="10">10</option>
-        <option value="20" selected>20</option>
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
         <option value="50">50</option>
     </select>
 </div>
@@ -42,7 +42,23 @@
 <div id="data-container">
     <!-- Dữ liệu sẽ được cập nhật ở đây -->
 </div>
-<div id="footer" style="display:none">
+<div id="footer" style="display:none" class="pagination-container" style="position:static; bottom: 20px; right: 0px;">
+    <button id="first-page" onclick="FirstPageOnClick()">
+        <i class="fas fa-angle-double-left"></i> <!-- Icon cho trang đầu -->
+    </button>
+    <button id="prev-page" onclick="PrevPageOnClick()">
+        <i class="fas fa-angle-left"></i> <!-- Icon cho trang trước -->
+    </button>
+    <span id="pageIndex">Trang 1</span>
+    <span id="pageTotal">Trang 1</span>
+    <button id="next-page" onclick="NextPageOnClick()">
+        <i class="fas fa-angle-right"></i> <!-- Icon cho trang sau -->
+    </button>
+    <button id="last-page" onclick="LastPageOnClick()">
+        <i class="fas fa-angle-double-right"></i> <!-- Icon cho trang cuối -->
+    </button>
+</div>
+@* <div id="footer" style="display:none">
     <div class="container mt-3">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -56,7 +72,7 @@
         </div>
     </div>
 </div>
-</div>
+</div> *@
 @*  <div class="form-group">
         <label for="pageIndex">Page:</label>
         <input type="number" class="form-control" id="pageIndex" value="1" onchange="changePage()">

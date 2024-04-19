@@ -1,6 +1,7 @@
 ﻿using Base.Data.Models;
 using Base.Data.Repositories;
 using Base.Service.Contracts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +18,28 @@ namespace Base.Service.Services
         {
             _userAssignRepository = userAssignRepository;
         }
-        public async Task<UserAssign?> GetUserById(int id)
+        public UserAssign GetUserById(int id)
         {
-            return _userAssignRepository.GetUserById(id);
+            var user = _userAssignRepository.GetById(id);
+            return user;
         }
 
-        public async Task<bool> IsExistedUserName(string username)
+        public bool IsExistedUserName(string username)
         {
-            return _userAssignRepository.IsExistedUserName(username);
+            var user = _userAssignRepository.Find(x=>x.UserName == username).Any();
+            if(user)
+            {
+                return true;
+            }
+
+            return false; 
         }
+
+        public string GetUserFullName(int id)
+        {
+            var user = _userAssignRepository.GetById(id);
+            return user.UserFullName;
+        }
+
     }
 }
