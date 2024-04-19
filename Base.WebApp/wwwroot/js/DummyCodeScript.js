@@ -17,30 +17,60 @@ $(function () {
     loadData(currentPage, pageSize);
 });
 
-function loadData(page, pageSize) {
+function toggleScrollButtons() {
+    const table = document.getElementById('people-table');
+    const isTableOverflowing = table.scrollHeight > table.clientHeight;
+    const scrollUpBtn = document.getElementById('scroll-up-btn');
+    const scrollDownBtn = document.getElementById('scroll-down-btn');
+    scrollUpBtn.style.display = isTableOverflowing ? 'block' : 'none';
+    scrollDownBtn.style.display = isTableOverflowing ? 'block' : 'none';
+}
 
+document.getElementById('scroll-up-btn').addEventListener('click', () => {
+    const table = document.getElementById('people-table');
+    table.scrollTop -= 30;
+});
+
+document.getElementById('scroll-down-btn').addEventListener('click', () => {
+    const table = document.getElementById('people-table');
+    table.scrollTop += 30;
+});
+
+function addDataToTable(data) {
+    const tbody = document.querySelector('#people-table tbody');
+    tbody.innerHTML = '';
+    data.forEach(dummyCode => {
+        var viewLink = '<i onclick="GetData(' + 1 + ', ' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-eye"></i>';
+        var editLink = '<i onclick="GetData(' + 2 + ', ' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-edit"></i>';
+        var deleteLink = '<i onclick="DummyCodeDelete(' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-trash"></i>';
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${dummyCode.material}</td>
+                <td>${dummyCode.dpName}</td>
+                <td>${dummyCode.description}</td>
+                <td>${dummyCode.totalMapping}</td>
+                <td>${FormatDateTime(dummyCode.createdDate)}</td>
+                <td>${dummyCode.createdBy}</td>
+                <td>${viewLink}</td>
+                <td>${editLink}</td>
+                <td>${deleteLink}</td>
+            </tr>
+        `;
+    });
+    toggleScrollButtons();
+}
+
+function loadData(page, pageSize) {
     getTotalPages(pageSize);
 
     $.ajax({
         url: "/DummyCode/GetData",
         method: 'GET',
         dataType: 'json',
-        data: { page: page, pageSize: pageSize }, 
+        data: { page: page, pageSize: pageSize },
         success: function (data) {
-            $('#people-table tbody').empty();
-
-            $.each(data, function (index, dummyCode) {
-                var viewLink = '<i onclick="GetData(' + 1 + ', ' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-eye"></i>';
-                var editLink = '<i onclick="GetData(' + 2 + ', ' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-edit"></i>';
-                var deleteLink = '<i onclick="DummyCodeDelete(' + dummyCode.id + ')" style="cursor: pointer;" class="fas fa-trash"></i>';
-
-                $('#people-table tbody').append(
-                    '<tr><td>' + dummyCode.material + '</td><td>' + dummyCode.dpName +
-                    '</td><td>' + dummyCode.description + '</td><td>' + dummyCode.totalMapping +
-                    '</td><td>' + FormatDateTime(dummyCode.createdDate) + '</td><td>' + dummyCode.createdBy +
-                    '</td><td>' + viewLink + '</td><td>' + editLink + '</td><td>' + deleteLink + '</td></tr>'
-                );
-            });
+            addDataToTable(data);
         },
         error: function (xhr, status, error) {
             console.error('Error:', error);

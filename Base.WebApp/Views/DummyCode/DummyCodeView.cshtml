@@ -14,24 +14,31 @@
     <a onclick="CreateDummyCode()" class="btn btn-success" id="create">Create New</a>
     <a onclick="ExportToExcel()" class="btn btn-success" id="export">Export to Excel</a>
 </div>
-
-<table class="table" id="people-table">
-    <thead>
-        <tr>
-            <th>Material</th>
-            <th>DpName</th>
-            <th>Description</th>
-            <th>Total Mapping</th>
-            <th>Created Date</th>
-            <th>Created By</th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+   
+<div class="table-container" style="max-height: 500px; overflow-y: auto; position: relative;">
+    <table class="table" id="people-table">
+        <thead style="position: sticky; top: 0; background-color: #fff; z-index: 2;">
+            <tr>
+                <th style="border-bottom: 1px solid #ccc; width: 5%;  padding: 10px;">Material</th>
+                <th style="border-bottom: 1px solid #ccc; width: 30%; padding: 10px;">DpName</th>
+                <th style="border-bottom: 1px solid #ccc; width: 40%; padding: 10px;">Description</th>
+                <th style="border-bottom: 1px solid #ccc; width: 5%;  padding: 10px;">Total Mapping</th>
+                <th style="border-bottom: 1px solid #ccc; width: 10%; padding: 10px;">Created Date</th>
+                <th style="border-bottom: 1px solid #ccc; width: 10%; padding: 10px;">Created By</th>
+                <th style="border-bottom: 1px solid #ccc;"></th>
+                <th style="border-bottom: 1px solid #ccc;"></th>
+                <th style="border-bottom: 1px solid #ccc;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
+        </tbody>
+    </table>
+    <div class="scroll-btns" style="position: absolute; right: 0;">
+        <button id="scroll-up-btn" style="display: none; margin: 5px; width: 30px; height: 30px; font-size: 20px; cursor: pointer;">▲</button>
+        <button id="scroll-down-btn" style="display: none; margin: 5px; width: 30px; height: 30px; font-size: 20px; cursor: pointer;">▼</button>
+    </div>
+</div>
 
 <div class="button-container" style="display: flex; justify-content: space-between;">
     <div>
