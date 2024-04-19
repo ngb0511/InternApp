@@ -13,7 +13,10 @@
     <a onclick="ImportTiming()" class="btn btn-success" id="create">Import Excel</a>
     <a onclick="Export()" class="btn btn-success" id="create">Export Excel</a>
 </p>
-
+<div class="form-group" style="float:right;">
+    <label for="searchInput">Search:</label>
+    <input type="text" class="form-control" id="searchInput" onkeyup="searchTable()" placeholder="Search...">
+</div>
 <div class="form-group">
     <label for="pageSize">Page Size:</label>
     <select class="form-control" style="width:min-content" id="pageSize" onchange="changePageSize()">
@@ -22,8 +25,9 @@
         <option value="50">50</option>
     </select>
 </div>
-<table class="table" id="people-table">
-    <thead>
+<div class="table-container" style="max-height: 500px; overflow-y: auto; position: relative;">
+<table class="table" id="people-table" style="margin-top:20px">
+        <thead style="position:sticky; top: 0; background-color: #fff; z-index: 2;">
         <tr>
             <th></th>
             <th>Customer</th>
@@ -39,10 +43,11 @@
         <!-- Dữ liệu sẽ được cập nhật tại đây -->
     </tbody>
 </table>
+</div>
 <div id="data-container">
     <!-- Dữ liệu sẽ được cập nhật ở đây -->
 </div>
-<div id="footer" style="display:none" class="pagination-container" style="position:static; bottom: 20px; right: 0px;">
+<div id="footer" style="display:none" class="pagination-container" style="position:static; bottom: 20px; right: 0px;margin-top:20px">
     <button id="first-page" onclick="FirstPageOnClick()">
         <i class="fas fa-angle-double-left"></i> <!-- Icon cho trang đầu -->
     </button>
@@ -230,5 +235,4 @@
 </div>
 
 <div id="loading" class="loading"></div>
-
 <!-- HTML của biểu tượng loading -->

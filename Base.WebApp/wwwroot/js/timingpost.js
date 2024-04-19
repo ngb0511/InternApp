@@ -1,5 +1,5 @@
 ﻿var pageIndex = 1;
-var totalPages = 1;
+var totalPages = 0;
 var pageSize = 10;
 
 $(document).ready(function () {
@@ -84,11 +84,16 @@ $(document).ready(function () {
         }
     });
 
-    ButtonStatus(pageIndex);
-
-    console.log(totalPages);
-
 });
+
+/*function toggleScrollButtons() {
+    const table = document.getElementById('people-table');
+    const isTableOverflowing = table.scrollHeight > table.clientHeight;
+    const scrollUpBtn = document.getElementById('scroll-up-btn');
+    const scrollDownBtn = document.getElementById('scroll-down-btn');
+    scrollUpBtn.style.display = isTableOverflowing ? 'block' : 'none';
+    scrollDownBtn.style.display = isTableOverflowing ? 'block' : 'none';
+}*/
 
 function changePageSize() {
     document.getElementById("pageIndex").value = 1;
@@ -121,7 +126,8 @@ function loadData(pageIndex) {
         method: 'GET',
         dataType: 'json',
         success: function (data) {
-            $('#people-table tbody').empty();
+            const tbody = document.querySelector('#people-table tbody');
+            tbody.innerHTML = '';
             if (data.length === 0) {
                 $('#people-table tbody').append('<tr><td colspan="8" class="text-center">Không có dữ liệu để hiển thị</td></tr>');
             } else {
@@ -130,12 +136,18 @@ function loadData(pageIndex) {
                     var editLink = '<button onclick="GetData(' + timing.id + ')" class="btn btn-trash"><i class="fas fa-edit" ></i></button >';
                     var deleteLink = '<button onclick="Delete(' + timing.id + ')" class="btn btn-trash"><i class="fas fa-trash" ></i></button >';
                     console.log(timing.index, pageSize);
-                    $('#people-table tbody')
-                        .append('<tr><td>' + timing.index + '</td><td>' + timing.customer + '</td><td>' + timing.postName
-                            + '</td><td>' + FormatDateDisplay(timing.postStart) + '</td><td>' + FormatDateDisplay(timing.postEnd)
-                            + '</td><td>' + FormatDateTime(timing.createdDate) + '</td><td>' + timing.createdByName
-                            + '</td><td>' + editLink + ' ' + deleteLink
-                            + '</td></tr>');
+                    tbody.innerHTML += `
+                                    <tr>
+                                        <td>${timing.index}</td>
+                                        <td>${timing.customer}</td>
+                                        <td>${timing.postName}</td>
+                                        <td>${FormatDateDisplay(timing.postStart) }</td>
+                                        <td>${FormatDateDisplay(timing.postEnd) }</td>
+                                        <td>${FormatDateTime(timing.createdDate) }</td>
+                                        <td>${timing.createdByName}</td>
+                                        <td>${editLink} ${deleteLink}</td>
+                                    </tr>
+                                `;
                 });
             }
         },
@@ -426,7 +438,7 @@ function Import() {
                 if (data.success == true) {
                     $("#modalImport").modal("hide");
                     $("#fileInput").val(null);
-                    loadData(pageIndex);
+                    loadData(1);
                     Swal.fire({
                         icon: "success",
                         title: data.message,
@@ -549,7 +561,6 @@ function ButtonStatus(pageIndex) {
         buttonLast.disabled = false;
     }
 }
-
 
 function GetTotalPage() {
     var baseurl = "https://localhost:7083/api/TimingPost/GetAll";
