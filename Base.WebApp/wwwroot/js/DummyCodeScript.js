@@ -1,6 +1,6 @@
 ﻿var currentPage = 1;
 var pageSize = 10;
-var totalPages = getTotalPages(pageSize);
+var totalPages = 0;
 
 $(function () {
     $(document).on("ajaxStart", function () {
@@ -19,7 +19,7 @@ $(function () {
 
 function loadData(page, pageSize) {
 
-    totalPages = getTotalPages(pageSize);
+    getTotalPages(pageSize);
 
     $.ajax({
         url: "/DummyCode/GetData",
@@ -72,7 +72,7 @@ function PrevPageOnClick() {
 };
 
 async function NextPageOnClick() {
-    var totalPages = await getTotalPages(pageSize);
+    await getTotalPages(pageSize);
     if (currentPage < totalPages - 1) {
         ChangeNextButtonsStatus(false);
     }
@@ -88,7 +88,7 @@ async function NextPageOnClick() {
 }
 
 async function LastPageOnClick() {
-    var totalPages = await getTotalPages(pageSize);
+    await getTotalPages(pageSize);
     currentPage = totalPages;
     ChangePrevButtonsStatus(false);
     ChangeNextButtonsStatus(true);
@@ -105,6 +105,7 @@ async function getTotalPages(pageSize) {
         });
 
         document.getElementById("current-page").innerText = "Page " + currentPage + "/" + response;
+        totalPages = response;
         return response;
     } catch (error) {
         console.error('Error:', error);
@@ -262,8 +263,9 @@ function CreateEvent() {
             contentType: false,
             processData: false,
             data: formData,
-            success: function (data) {
+            success: async function (data) {
                 if (data.success == false) {
+
                     Swal.fire({
                         icon: "error",
                         title: data.message,
@@ -283,6 +285,14 @@ function CreateEvent() {
                     $("#txtDpName").val("");
                     $("#txtDescription").val("");
                     $("#modalCreate").modal("hide");
+
+                    await getTotalPages(pageSize);
+                    console.log(totalPages);
+
+                    if (currentPage < totalPages) {
+                        currentPage = totalPages;
+                    }
+
                     loadData(currentPage, pageSize);
                     Swal.fire({
                         icon: "success",
@@ -388,7 +398,14 @@ function DummyCodeDelete(id) {
                 data: {
                     id: id
                 },
-                success: function (data) {
+                success: async function (data) {
+                    await getTotalPages(pageSize);
+                    console.log(totalPages);
+
+                    if (currentPage > totalPages) {
+                        currentPage = totalPages;
+                    }
+
                     loadData(currentPage, pageSize);
                     Swal.fire({
                         icon: "success",
