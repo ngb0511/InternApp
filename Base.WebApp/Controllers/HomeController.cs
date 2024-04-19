@@ -32,63 +32,6 @@ namespace Base.WebApp.Controllers
             return View();
         }
 
-        public async Task<IActionResult> DummyCodeView()
-        {
-            var response = await _httpClient.GetAsync("https://localhost:7083/api/DummyCode/GetAllDummyCode");
-            if (response.IsSuccessStatusCode)
-            {
-                var responseData = await response.Content.ReadAsStringAsync();
-                var yourModels = System.Text.Json.JsonSerializer.Deserialize<IEnumerable<DummyCodeVM>>(responseData, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-                return View(yourModels);
-            }
-            else
-            {
-                // Xử lý khi gặp lỗi
-                return View();
-            }
-
-            //return View();
-        }
-
-        public async Task<IActionResult> DummyCodeEdit(int id)
-        {
-            //var httpClient = _httpClient.CreateClient();
-            var response = await _httpClient.GetAsync($"https://localhost:7083/api/DummyCode/GetDummyCodeById/{id}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseData = await response.Content.ReadAsStringAsync();
-                var yourModel = JsonConvert.DeserializeObject<DummyCodeVM>(responseData);
-                return View(yourModel);
-            }
-            else
-            {
-                // Xử lý khi gặp lỗi
-                return View();
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DummyCodeUpdate(DummyCodeVM dummyCodeVM)
-        {
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(dummyCodeVM), Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PutAsync($"https://localhost:7083/api/DummyCode/UpdateDummyCode/{dummyCodeVM.Id}", jsonContent);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToAction("DummyCodeView"); // Redirect to index or any other action after successful update
-            }
-            else
-            {
-                // Handle error
-                return View(dummyCodeVM); // Return to edit view with model if update fails
-            }
-        }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

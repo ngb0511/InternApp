@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Domain.ViewModels
+namespace Base.Domain.RequestModels
 {
-    public class LogVM
+    public class LogRM
     {
         public int Id { get; set; }
 
@@ -15,7 +15,5 @@ namespace Base.Domain.ViewModels
         public DateTime CreatedDate { get; set; }
 
         public int CreatedBy { get; set; }
-
-        //public UserAssign UserAssign { get; set; } = null!;
     }
 }

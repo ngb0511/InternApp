@@ -1,0 +1,264 @@
+﻿@model IEnumerable<Base.Domain.ViewModels.DummyCodeVM>
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<script src="~/js/DummyCodeScript.js"></script>
+
+<h1>DummyCode</h1>
+
+<div class="button-container" style="display: inline-block;">
+    <a onclick="CreateDummyCode()" class="btn btn-success" id="create">Create New</a>
+    <a onclick="ExportToExcel()" class="btn btn-success" id="export">Export to Excel</a>
+</div>
+
+<div class="table-container" style="max-height: 500px; overflow-y: auto; position: relative;">
+    <table class="table" id="people-table">
+        <thead style="position: sticky; top: 0; background-color: #fff; z-index: 2;">
+            <tr>
+                <th style="border-bottom: 1px solid #ccc; width: 5%;  padding: 10px;">Material</th>
+                <th style="border-bottom: 1px solid #ccc; width: 30%; padding: 10px;">DpName</th>
+                <th style="border-bottom: 1px solid #ccc; width: 40%; padding: 10px;">Description</th>
+                <th style="border-bottom: 1px solid #ccc; width: 5%;  padding: 10px;">Total Mapping</th>
+                <th style="border-bottom: 1px solid #ccc; width: 10%; padding: 10px;">Created Date</th>
+                <th style="border-bottom: 1px solid #ccc; width: 10%; padding: 10px;">Created By</th>
+                <th style="border-bottom: 1px solid #ccc;"></th>
+                <th style="border-bottom: 1px solid #ccc;"></th>
+                <th style="border-bottom: 1px solid #ccc;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
+        </tbody>
+    </table>
+    <div class="scroll-btns" style="position: absolute; right: 0;">
+        <button id="scroll-up-btn" style="display: none; margin: 5px; width: 30px; height: 30px; font-size: 20px; cursor: pointer;">▲</button>
+        <button id="scroll-down-btn" style="display: none; margin: 5px; width: 30px; height: 30px; font-size: 20px; cursor: pointer;">▼</button>
+    </div>
+</div>
+
+<div class="button-container" style="display: flex; justify-content: space-between;">
+    <div>
+        <select id="items-per-page" onchange="ItemsPerPageOnChange()" style="margin-left: 10px; cursor: pointer;">
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        <span> items/page</span>
+    </div>
+    <div id="loading-icon" style="display: none;">
+        <i class="fa fa-spinner fa-spin"></i> Loading...
+    </div>
+    <div class="pagination-container" style="position: static; bottom: 20px; right: 0px;">
+        <i id="firstPage" class="fas fa-angle-double-left" onclick="FirstPageOnClick()" style="margin-right: 10px; cursor: pointer;"></i>
+        <i id="prevPage" class="fas fa-angle-left" onclick="PrevPageOnClick()" style="margin-right: 10px; cursor: pointer;"></i>
+        <span id="current-page"></span>
+        <i id="nextPage" class="fas fa-angle-right" onclick="NextPageOnClick()" style="margin-left: 10px; cursor: pointer;"></i>
+        <i id="lastPage" class="fas fa-angle-double-right" onclick="LastPageOnClick()" style="margin-left: 10px; cursor: pointer;"></i>
+    </div>
+</div>
+
+<div id="data-container"></div>
+
+<div id="modalCreate" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px;padding-top: 12px; padding-left:15px">
+                        <div class="col-md-4"><span>Material:</span></div>
+                        <div class="col-md-11">
+                            <input id="txtMaterial" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>DpName:</span></div>
+                        <div class="col-md-11">
+                            <input id="txtDpName" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>Description:</span></div>
+                        <div class="col-md-11">
+                            <input id="txtDescription" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button onclick="HideModal()" type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button id="btnCreate" onclick="CreateEvent()" class="btn btn-primary" type="submit">Thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalUpdate" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Update</h4>
+            </div>
+
+            <div class="modal-body">
+                <input id="up_txtId" type="text" class="form-control" hidden/>
+                    
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px;padding-top: 12px; padding-left:15px">
+                        <div class="col-md-4"><span>Material:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtMaterial" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>DpName:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtDpName" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>Description:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtDescription" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>TotalMapping:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtTotalMapping" type="number" class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>CreatedDate:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtCreatedDate" type="datetime" class="form-control" disabled> </input>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>CreatedBy:</span></div>
+                        <div class="col-md-11">
+                            <input id="up_txtCreatedBy" type="text" class="form-control" disabled />
+                            @* <input id="up_txtCreatedBy" type="txt" class="form-control" disabled> </input> *@
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button onclick="HideModal()" type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button id="btnUpdate" onclick="UpdateEvent()" class="btn btn-primary" type="submit">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalView" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View</h4>
+            </div>
+
+            <div class="modal-body">
+                <input id="view_txtId" type="text" class="form-control" hidden />
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px;padding-top: 12px; padding-left:15px">
+                        <div class="col-md-4"><span>Material:</span></div>
+                        <div class="col-md-11">
+                            <input id="view_txtMaterial" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>DpName:</span></div>
+                        <div class="col-md-11">
+                            <input id="view_txtDpName" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>Description:</span></div>
+                        <div class="col-md-11">
+                            <input id="view_txtDescription" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>TotalMapping:</span></div>
+                        <div class="col-md-11">
+                            <input id="view_txtTotalMapping" type="number" class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>CreatedDate:</span></div>
+                        <div class="col-md-11">
+                            <input id="view_txtCreatedDate" type="datetime" class="form-control" disabled> </input>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="col-md-12" style="padding-bottom: 12px; padding-top: 12px; padding-left: 15px">
+                        <div class="col-md-4"><span>CreatedBy:</span></div>
+                        <div class="col-md-11">
+                            <input id="view_txtCreatedBy" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+
+
+            <div class="modal-footer">
+                <button onclick="HideModal()" type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmationMessage" style="display: none;">
+    Bạn có chắc chắn muốn xóa dữ liệu này?
+    <button onclick="confirmDelete(true)">Đồng ý</button>
+    <button onclick="confirmDelete(false)">Hủy</button>
+</div>  

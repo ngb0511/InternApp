@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Base.Domain.Interfaces;
 
-namespace Base.Domain.Interfaces
+namespace Base.Data.Infrastructure.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
-        IDummyCodeRepository DummyCodes { get; }
-        ILogRepository Logs { get; }
-        int Complete();
+        public Task SaveChangesAsync();
+
+        public void SaveChanges();
     }
 
 }

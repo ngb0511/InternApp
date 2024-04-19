@@ -5,30 +5,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Base.Data.Models;
-using Base.Data.Infrastructure.Repositories;
+using Base.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Base.Data.Infrastructure.Interfaces;
 
-namespace Base.Data.Infrastructure.UnitOfWork
+namespace Base.Data.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly Task01Context _context;
-        public IDummyCodeRepository DummyCodes { get; private set; }
-        public ILogRepository Logs { get; private set; }
-
 
         public UnitOfWork(Task01Context context)
         {
             _context = context;
-            DummyCodes = new DummyCodeRepository(_context);
-            Logs = new LogRepository(_context);
         }
 
-        public int Complete()
+        public async Task SaveChangesAsync()
         {
-
-            return _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
+
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
+        }
+
         public void Dispose()
         {
             _context.Dispose();

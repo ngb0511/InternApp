@@ -1,6 +1,9 @@
-using Base.Data.Infrastructure.UnitOfWork;
+using Base.Data.Infrastructure;
+using Base.Data.Infrastructure.Interfaces;
 using Base.Data.Models;
-using Base.Domain.Interfaces;
+using Base.Data.Repositories;
+using Base.Service.Constract;
+using Base.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<Task01Context>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IDummyCodeRepository, DummyCodeRepository>();
+builder.Services.AddScoped<IDummyCodeService, DummyCodeService>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -21,6 +26,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+    await next.Invoke();
+});
 
 app.UseHttpsRedirection();
 

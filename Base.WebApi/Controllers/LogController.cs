@@ -1,4 +1,4 @@
-﻿using Base.Domain.Interfaces;
+﻿using Base.Data.Infrastructure.Interfaces;
 using Base.Domain.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,52 +10,52 @@ namespace Base.WebApi.Controllers
     [ApiController]
     public class LogController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public LogController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        //private readonly IUnitOfWork _unitOfWork;
+        //public LogController(IUnitOfWork unitOfWork)
+        //{
+        //    _unitOfWork = unitOfWork;
+        //}
 
-        [HttpGet("GetAllLog")]
-        public IActionResult GetAllLog()
-        {
-            var GetAllLog = _unitOfWork.Logs.GetAllLog();
-            return Ok(GetAllLog);
-        }
+        //[HttpGet("GetAllLog")]
+        //public IActionResult GetAllLog()
+        //{
+        //    var GetAllLog = _unitOfWork.Logs.GetAll();
+        //    return Ok(GetAllLog);
+        //}
 
-        [HttpGet("GetLogById/{id}")]
-        public IActionResult GetLogById(int id)
-        {
-            var getLogById = _unitOfWork.Logs.GetLogById(id);
-            return Ok(getLogById);
-        }
-        [HttpPost("AddLog")]
-        public IActionResult AddLog(LogVM logVM)
-        {
-            _unitOfWork.Logs.AddLog(logVM);
-            _unitOfWork.Complete();
+        //[HttpGet("GetLogById/{id}")]
+        //public IActionResult GetLogById(int id)
+        //{
+        //    var getLogById = _unitOfWork.Logs.GetById(id);
+        //    return Ok(getLogById);
+        //}
+        //[HttpPost("AddLog")]
+        //public IActionResult AddLog(LogVM logVM)
+        //{
+        //    _unitOfWork.Logs.Add(logVM);
+        //    _unitOfWork.Complete();
 
-            return Ok();
-        }
+        //    return Ok();
+        //}
 
-        [HttpGet("ExportLogToExcel")]
-        public async Task<IActionResult> ExportLogToExcel()
-        {
-            var getAllLog = _unitOfWork.Logs.GetAllLog();
+        //[HttpGet("ExportLogToExcel")]
+        //public async Task<IActionResult> ExportLogToExcel()
+        //{
+        //    var getAllLog = _unitOfWork.Logs.GetAll();
 
-            byte[] data = await _unitOfWork.Logs.ExportExcel(getAllLog);
-            /*string filePath = Path.Combine(Path.GetTempPath(), "Exported_Log.xlsx");
+        //    byte[] data = await _unitOfWork.Logs.ExportExcel(getAllLog);
+        //    /*string filePath = Path.Combine(Path.GetTempPath(), "Exported_Log.xlsx");
 
-            int i = 1;
-            while (System.IO.File.Exists(filePath))
-            {
-                filePath = Path.Combine(Path.GetTempPath(), "Exported_Log" + "(" + i + ")" +".xlsx");
-                i++;
-            }
+        //    int i = 1;
+        //    while (System.IO.File.Exists(filePath))
+        //    {
+        //        filePath = Path.Combine(Path.GetTempPath(), "Exported_Log" + "(" + i + ")" +".xlsx");
+        //        i++;
+        //    }
 
-            System.IO.File.WriteAllBytes(filePath, data);*/
+        //    System.IO.File.WriteAllBytes(filePath, data);*/
 
-            return File(data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Exported_Log.xlsx");
-        }
+        //    return File(data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Exported_Log.xlsx");
+        //}
     }
 }

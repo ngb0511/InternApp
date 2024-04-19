@@ -1,13 +1,13 @@
-﻿using Base.Data.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Base.Domain.ViewModels;
 
-namespace Base.Domain.ViewModels
+namespace Base.Domain.RequestModels
 {
-    public class DummyCodeVM
+    public class DummyCodeRM
     {
         public int Id { get; set; }
 
@@ -22,7 +22,5 @@ namespace Base.Domain.ViewModels
         public DateTime CreatedDate { get; set; }
 
         public int CreatedBy { get; set; }
-
-        //public UserAssign User { get; set; } = null!;
     }
 }

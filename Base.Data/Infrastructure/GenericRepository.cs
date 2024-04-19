@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Base.Data.Infrastructure.Repositories
+namespace Base.Data.Infrastructure
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
@@ -21,11 +21,6 @@ namespace Base.Data.Infrastructure.Repositories
         public void Add(T entity)
         {
             _context.Set<T>().Add(entity);
-        }
-
-        public void AddRange(IEnumerable<T> entities)
-        {
-            _context.Set<T>().AddRange(entities);
         }
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> expression)
@@ -48,6 +43,11 @@ namespace Base.Data.Infrastructure.Repositories
             _context.Set<T>().Remove(entity);
         }
 
+        public void AddRange(IEnumerable<T> entities)
+        {
+            _context.Set<T>().AddRange(entities);
+        }
+
         public void RemoveRange(IEnumerable<T> entities)
         {
             _context.Set<T>().RemoveRange(entities);
@@ -58,7 +58,5 @@ namespace Base.Data.Infrastructure.Repositories
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
         }
-
     }
-
 }
