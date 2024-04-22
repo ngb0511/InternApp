@@ -1,6 +1,7 @@
 ﻿using Base.Service.Contracts;
 using Base.Domain.Models.TimingPost;
 using Microsoft.AspNetCore.Mvc;
+using Base.Domain.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -45,19 +46,35 @@ namespace Base.WebApi.Controllers
         }
 
         [HttpPost("Create")]
-        public IActionResult Add(TimingRequest timingPost)
+        public async Task<RequestResponse> Add(TimingRequest timingPost)
         {
             try
             {
-                if (!_timingPostService.Add(timingPost).Result)
+                bool result = await _timingPostService.Add(timingPost);
+                if (!result)
                 {
-                    return BadRequest(new { message = "Dữ liệu thêm không hợp lệ", success = false });
+                    return new RequestResponse
+                    {
+                        StatusCode = Code.BadRequest,
+                        Content =  result.ToString(),
+                        Message = "Dữ liệu thêm không hợp lệ",
+                    };
                 }
-                return Ok(new { message = "Thêm thành công", success = true });
+                return new RequestResponse
+                {
+                    StatusCode = Code.OK,
+                    Content = result.ToString(),
+                    Message = "Thêm thành công",
+                };
             }
-            catch
+            catch(Exception ex)
             {
-                return BadRequest();
+                return new RequestResponse
+                {
+                    StatusCode = Code.BadRequest,
+                    Content = ex.Message,
+                    Message = "Dữ liệu thêm không hợp lệ",
+                };
             }
                         
         }

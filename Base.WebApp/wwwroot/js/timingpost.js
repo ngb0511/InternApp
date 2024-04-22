@@ -330,15 +330,17 @@ function GetData(id) {
         data: {
             id: id
         },
-        success: function (data) {
-            $('#up_txtCustomer').val(data.customer);
-            $('#up_txtPostName').val(data.postName);
-            $('#up_txtPostStart').val(FormatDate(data.postStart));
-            $('#up_txtPostEnd').val(FormatDate(data.postEnd));
-            $('#up_txtCreatedDate').val(FormatDateTime(data.createdDate));
-            $('#up_txtCreatedBy').val(data.createdByName);
-            $('#up_txtId').val(data.id);
-            $('#modalUpdate').modal("show");
+        success: function (result) {
+            if (result.data.success = true) {
+                $('#up_txtCustomer').val(result.data.customer);
+                $('#up_txtPostName').val(result.data.postName);
+                $('#up_txtPostStart').val(FormatDate(result.data.postStart));
+                $('#up_txtPostEnd').val(FormatDate(result.data.postEnd));
+                $('#up_txtCreatedDate').val(FormatDateTime(result.data.createdDate));
+                $('#up_txtCreatedBy').val(result.data.createdByName);
+                $('#up_txtId').val(result.data.id);
+                $('#modalUpdate').modal("show");
+            }
         }
     })
 }

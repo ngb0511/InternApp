@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Base.Intergration\Base.Intergration.csproj" />
     <ProjectReference Include="..\Base.WebApi\Base.WebApi.csproj" />
   </ItemGroup>
 
